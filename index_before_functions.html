@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MTRL//BRIDGE — Unreal Material Graph Clipboard Builder</title>
+<style>
+:root{
+  --bg:#060707;--panel:#0c0e0e;--panel2:#121515;--line:#242929;--line2:#363d3d;
+  --text:#e8ece8;--muted:#78817e;--acid:#d7ff3f;--cyan:#55f5dd;--orange:#ff7d3a;--pink:#ff5faa;
+  --danger:#ff5252;--shadow:0 16px 50px rgba(0,0,0,.38);--radius:4px;
+}
+*{box-sizing:border-box} html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font:13px/1.35 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit} button{cursor:pointer}
+#app{height:100%;display:grid;grid-template-rows:56px 1fr 28px;background:radial-gradient(circle at 75% 0%,rgba(85,245,221,.045),transparent 34%),var(--bg)}
+header{display:flex;align-items:center;gap:18px;padding:0 16px;border-bottom:1px solid var(--line);background:#080909;position:relative;z-index:20}
+.brand{display:flex;align-items:center;gap:11px;min-width:258px}.mark{width:25px;height:25px;position:relative;transform:skew(-10deg)}.mark:before,.mark:after{content:"";position:absolute;background:var(--acid)}.mark:before{left:0;top:0;width:7px;height:25px}.mark:after{left:9px;top:0;width:16px;height:7px;box-shadow:0 18px 0 var(--acid)}
+.brand strong{font-size:15px;letter-spacing:.15em}.brand span{color:var(--muted);font-size:10px;letter-spacing:.15em;margin-left:3px}
+.toolbar{display:flex;align-items:center;gap:7px;flex:1}.btn{border:1px solid var(--line2);background:#111414;padding:8px 11px;border-radius:3px;text-transform:uppercase;font-weight:800;letter-spacing:.08em;font-size:10px}.btn:hover{border-color:#59605f;background:#171a1a}.btn.primary{background:var(--acid);border-color:var(--acid);color:#080908}.btn.cyan{border-color:#2a6c64;color:var(--cyan)}.btn.ai{border-color:#754466;color:var(--pink);background:#171014}.btn.ai:hover{border-color:var(--pink);background:#21131c}.btn.danger{color:#ff8d8d}.toolbar .spacer{flex:1}.pill{border:1px solid var(--line);padding:7px 9px;color:var(--muted);font-size:10px;letter-spacing:.07em;text-transform:uppercase}.pill b{color:var(--acid)}
+.workspace{min-height:0;display:grid;grid-template-columns:242px 1fr 316px}.sidebar,.inspector{min-height:0;background:var(--panel);position:relative;z-index:10}.sidebar{border-right:1px solid var(--line);display:grid;grid-template-rows:auto auto 1fr}.inspector{border-left:1px solid var(--line);overflow:auto}.panel-title{padding:13px 14px 9px;color:#aeb6b2;font-weight:900;font-size:10px;letter-spacing:.16em;text-transform:uppercase}.search{margin:0 12px 10px;width:calc(100% - 24px);background:#090b0b;border:1px solid var(--line);padding:9px 10px;outline:none}.search:focus{border-color:#55615d}.categories{padding:0 8px 12px;overflow:auto}.cat{margin-bottom:13px}.cat h4{font-size:9px;color:#636c68;letter-spacing:.16em;text-transform:uppercase;margin:4px 7px 6px}.node-add{width:100%;display:flex;align-items:center;gap:8px;background:transparent;border:0;border-left:2px solid transparent;padding:7px 8px;text-align:left;color:#bbc1be}.node-add:hover{background:#141717;color:white;border-left-color:var(--acid)}.dot{width:7px;height:7px;background:#5f6764;flex:none}.node-add[data-accent="acid"] .dot{background:var(--acid)}.node-add[data-accent="cyan"] .dot{background:var(--cyan)}.node-add[data-accent="orange"] .dot{background:var(--orange)}.node-add[data-accent="pink"] .dot{background:var(--pink)}
+#stageWrap{position:relative;overflow:hidden;background-color:#090b0b;background-image:linear-gradient(#151919 1px,transparent 1px),linear-gradient(90deg,#151919 1px,transparent 1px),linear-gradient(#0e1111 1px,transparent 1px),linear-gradient(90deg,#0e1111 1px,transparent 1px);background-size:64px 64px,64px 64px,16px 16px,16px 16px;background-position:0 0}.stage-label{position:absolute;top:12px;left:13px;z-index:6;color:#4d5652;font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;pointer-events:none}.stage-label b{color:#7b8782}.stage-actions{position:absolute;right:12px;top:12px;z-index:8;display:flex;gap:6px}.mini{border:1px solid var(--line);background:#0c0e0e;padding:6px 8px;color:#78817e;font-size:10px}.mini:hover{color:white;border-color:#4e5754}
+#viewport{position:absolute;inset:0;overflow:hidden;cursor:grab}#viewport.grabbing{cursor:grabbing}#world{position:absolute;left:0;top:0;transform-origin:0 0;width:10000px;height:10000px}#wires{position:absolute;left:0;top:0;width:10000px;height:10000px;overflow:visible;pointer-events:none}.wire{fill:none;stroke:#70807a;stroke-width:2}.wire.selected{stroke:var(--acid);stroke-width:3}.wire.preview{stroke:var(--cyan);stroke-dasharray:6 5}
+.node{position:absolute;width:184px;cursor:move;background:#111414;border:1px solid #333a38;border-top:3px solid var(--accent,#69716e);box-shadow:0 13px 30px rgba(0,0,0,.3);user-select:none}.node.selected{outline:1px solid var(--acid);box-shadow:0 0 0 3px rgba(215,255,63,.08),var(--shadow)}.node.primary-selected{outline:2px solid var(--acid);outline-offset:1px}.marquee{position:absolute;display:none;z-index:30;pointer-events:none;border:1px solid var(--acid);background:rgba(215,255,63,.075);box-shadow:0 0 0 1px rgba(215,255,63,.12) inset}.marquee.show{display:block}.node-head{padding:8px 9px 7px;border-bottom:1px solid #252a28;display:flex;align-items:center;gap:7px;cursor:move}.node-head .type{font-size:9px;color:#707a76;letter-spacing:.1em;text-transform:uppercase}.node-head .name{font-weight:800;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}.node-body{padding:6px 0;min-height:34px}.pin-row{min-height:24px;cursor:move;display:flex;align-items:center;position:relative;font-size:10px;color:#9ea7a3}.pin-row.out{justify-content:flex-end;text-align:right}.pin-label{padding:0 11px;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pin{width:11px;cursor:crosshair;height:11px;border:2px solid #7a8581;background:#111414;position:absolute;top:7px;transform:rotate(45deg);z-index:4}.pin.in{left:-6px}.pin.out{right:-6px;background:#303735}.pin:hover{border-color:var(--acid);background:var(--acid)}.node-foot{border-top:1px solid #222725;color:#56605c;padding:5px 8px;font:9px ui-monospace,SFMono-Regular,Consolas,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty-inspector{padding:26px 18px;color:#65706b}.inspect-section{border-bottom:1px solid var(--line);padding:13px 13px 16px}.inspect-section h3{margin:0 0 11px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#909a95}.field{display:grid;gap:5px;margin:9px 0}.field label{font-size:9px;text-transform:uppercase;color:#626d68;letter-spacing:.12em}.field input,.field select,.field textarea{width:100%;background:#080a0a;border:1px solid #2a302e;border-radius:2px;padding:8px 9px;outline:none}.field textarea{min-height:92px;resize:vertical;font:11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace}.field input:focus,.field select:focus,.field textarea:focus{border-color:#596660}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.row{display:flex;gap:7px;align-items:center}.row .field{flex:1}.tag{font-size:9px;background:#171b1a;color:#8f9b96;border:1px solid #2d3431;padding:3px 5px}.pin-edit{display:grid;grid-template-columns:1fr 82px 25px;gap:5px;margin:6px 0}.pin-edit input{min-width:0;background:#080a0a;border:1px solid #2a302e;padding:6px}.xbtn{border:1px solid #382c2c;background:#140d0d;color:#c77;padding:0}.smallbtn{width:100%;border:1px dashed #3c4441;background:transparent;color:#7c8782;padding:7px;margin-top:7px}.smallbtn:hover{color:white;border-color:#69736f}.custom-code textarea{min-height:190px;color:#d2dfd9}.notice{border-left:2px solid var(--orange);background:#171310;padding:9px;color:#c8ad9d;font-size:10px;margin:9px 0}.ok{border-left-color:var(--cyan);background:#0d1716;color:#9fcac3}
+footer{border-top:1px solid var(--line);background:#080909;display:flex;align-items:center;padding:0 12px;color:#5c6561;font-size:9px;letter-spacing:.08em;text-transform:uppercase}.status{margin-left:auto;color:#76817c}.status.good{color:var(--cyan)}.status.warn{color:var(--orange)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:100}.modal.show{display:flex}.modal-box{width:min(930px,90vw);height:min(720px,85vh);background:#0c0f0e;border:1px solid #343b38;box-shadow:0 30px 90px #000;display:grid;grid-template-rows:48px 1fr 52px}.modal-head,.modal-foot{display:flex;align-items:center;padding:0 13px;gap:8px}.modal-head{border-bottom:1px solid var(--line)}.modal-head strong{letter-spacing:.11em;font-size:11px}.modal-head .spacer,.modal-foot .spacer{flex:1}.modal-main{padding:12px;min-height:0}.modal-main textarea{width:100%;height:100%;resize:none;background:#060808;border:1px solid #2a302e;color:#c7d4ce;padding:12px;font:11px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;outline:none}.modal-foot{border-top:1px solid var(--line)}
+.toast{position:fixed;bottom:42px;left:50%;transform:translateX(-50%) translateY(12px);background:#121615;border:1px solid #39413e;padding:10px 14px;color:#dfe8e4;z-index:150;opacity:0;pointer-events:none;transition:.18s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:950px){.workspace{grid-template-columns:190px 1fr 270px}.brand{min-width:190px}.node{width:170px}}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="brand"><div class="mark"></div><div><strong>MTRL//BRIDGE</strong><span>UE 5.4.x</span></div></div>
+  <div class="toolbar">
+    <button class="btn" id="newBtn">New</button>
+    <button class="btn cyan" id="importBtn">Paste / Import</button>
+    <button class="btn ai" id="aiBuildBtn">AI Build</button>
+    <button class="btn" id="previewBtn">UE Text</button>
+    <button class="btn" id="copyBtn">Copy All</button>
+    <button class="btn primary" id="copySelectedBtn">Copy Selected</button>
+    <div class="spacer"></div>
+    <div class="pill"><b id="nodeCount">0</b> nodes · <b id="edgeCount">0</b> links · <b id="selectedCount">0</b> selected</div>
+  </div>
+</header>
+<div class="workspace">
+  <aside class="sidebar">
+    <div class="panel-title">Expression palette</div>
+    <input class="search" id="search" placeholder="Search nodes…" />
+    <div class="categories" id="palette"></div>
+  </aside>
+  <main id="stageWrap">
+    <div class="stage-label">Material graph / <b>box select · shift/ctrl add · drag group · wheel zoom · alt/middle/right pan</b></div>
+    <div class="stage-actions"><button class="mini" id="aiContextBtn">AI context</button><button class="mini" id="protocolBtn">AI protocol</button><button class="mini" id="frameBtn">Frame all</button><button class="mini" id="sampleBtn">Load sample</button></div>
+    <div id="viewport"><div id="world"><svg id="wires"></svg><div id="nodes"></div></div><div id="marquee" class="marquee"></div></div>
+  </main>
+  <aside class="inspector" id="inspector"><div class="empty-inspector">Select a node to edit its Unreal expression properties.</div></aside>
+</div>
+<footer><span>Browser → Unreal Material Editor clipboard bridge</span><span class="status" id="status">Ready</span></footer>
+</div>
+
+<div class="modal" id="textModal"><div class="modal-box">
+  <div class="modal-head"><strong id="modalTitle">UNREAL CLIPBOARD TEXT</strong><div class="spacer"></div><button class="btn" id="closeModal">Close</button></div>
+  <div class="modal-main"><textarea id="modalText" spellcheck="false"></textarea></div>
+  <div class="modal-foot"><span id="modalHint" style="color:#69736f;font-size:10px"></span><div class="spacer"></div><button class="btn cyan" id="modalAction">Import</button></div>
+</div></div>
+<input type="file" id="recipeFile" accept=".mtrl,.mtrlbridge,.txt,.json" style="display:none">
+<div class="toast" id="toast"></div>
+<script>
+'use strict';
+
+function T(cat,name,cls,inputs=[],outputs=['Output'],props='',accent='cyan',extra={}){
+ return {cat,name,class:'MaterialExpression'+cls,accent,inputs:inputs.map(x=>Array.isArray(x)?x:[x,x]),outputs,props,...extra};
+}
+function unary(cat,name,cls,prop='Input',props='',accent='acid'){return T(cat,name,cls,[[prop,prop]],['Output'],props,accent)}
+function binary(cat,name,cls,a='A',b='B',props='',accent='acid'){return T(cat,name,cls,[[a,a],[b,b]],['Output'],props,accent)}
+
+const CURATED_TEMPLATES = [
+ // Math / scalar-vector operations
+ T('Math','Add','Add',[['A','A'],['B','B']],['Output'],'ConstA=0.000000\nConstB=0.000000','acid'),
+ T('Math','Multiply','Multiply',[['A','A'],['B','B']],['Output'],'ConstA=1.000000\nConstB=1.000000','acid'),
+ T('Math','Subtract','Subtract',[['A','A'],['B','B']],['Output'],'ConstA=0.000000\nConstB=0.000000','acid'),
+ T('Math','Divide','Divide',[['A','A'],['B','B']],['Output'],'ConstA=1.000000\nConstB=1.000000','acid'),
+ T('Math','Lerp','LinearInterpolate',[['A','A'],['B','B'],['Alpha','Alpha']],['Output'],'ConstA=0.000000\nConstB=1.000000\nConstAlpha=0.500000','acid'),
+ T('Math','Inverse Lerp','InverseLinearInterpolate',[['A','A'],['B','B'],['Value','Value']],['Output'],'','acid'),
+ T('Math','Clamp','Clamp',[['Input','Input'],['Min','Min'],['Max','Max']],['Output'],'MinDefault=0.000000\nMaxDefault=1.000000','acid'),
+ unary('Math','Saturate','Saturate'), unary('Math','One Minus','OneMinus'), unary('Math','Abs','Abs'), unary('Math','Ceil','Ceil'), unary('Math','Floor','Floor'), unary('Math','Frac','Frac'), unary('Math','Round','Round'), unary('Math','Truncate','Truncate'), unary('Math','Sign','Sign'), unary('Math','Square Root','SquareRoot'), unary('Math','Normalize','Normalize'), unary('Math','Length','Length'),
+ binary('Math','Min','Min'), binary('Math','Max','Max'), binary('Math','Fmod','Fmod'), binary('Math','Dot Product','DotProduct'), binary('Math','Cross Product','CrossProduct'), binary('Math','Distance','Distance'), binary('Math','Step','Step','Y','X'),
+ T('Math','SmoothStep','SmoothStep',[['Min','Min'],['Max','Max'],['Value','Value']],['Output'],'','acid'),
+ T('Math','Power','Power',[['Base','Base'],['Exp','Exponent']],['Output'],'ConstExponent=2.000000','acid'),
+ unary('Math','Exp','Exponential'), unary('Math','Exp2','Exponential2'), unary('Math','Log','Logarithm'), unary('Math','Log2','Logarithm2'), unary('Math','Log10','Logarithm10'),
+ unary('Math','Sine','Sine','Input','Period=1.000000'), unary('Math','Cosine','Cosine','Input','Period=1.000000'), unary('Math','Arcsine','Arcsine'), unary('Math','Arccosine','Arccosine'), unary('Math','Arctangent','Arctangent'), binary('Math','Arctangent2','Arctangent2','Y','X'),
+ unary('Math','Arcsine Fast','ArcsineFast'), unary('Math','Arccosine Fast','ArccosineFast'), unary('Math','Arctangent Fast','ArctangentFast'), binary('Math','Arctangent2 Fast','Arctangent2Fast','Y','X'),
+ T('Math','If','If',[['A','A'],['B','B'],['A > B','AGreaterThanB'],['A = B','AEqualsB'],['A < B','ALessThanB']],['Output'],'EqualsThreshold=0.000010','acid'),
+ unary('Math','DDX','DDX'), unary('Math','DDY','DDY'), unary('Math','Derive Normal Z','DeriveNormalZ'),
+ T('Math','Constant Bias Scale','ConstantBiasScale',[['Input','Input']],['Output'],'Bias=1.000000\nScale=0.500000','acid'),
+
+ // Vector / color
+ T('Vectors','Append Vector','AppendVector',[['A','A'],['B','B']],['Output'],'','cyan'),
+ T('Vectors','Append 3 Vector','Append3Vector',[['A','A'],['B','B'],['C','C']],['Output'],'','cyan'),
+ T('Vectors','Append 4 Vector','Append4Vector',[['A','A'],['B','B'],['C','C'],['D','D']],['Output'],'','cyan'),
+ T('Vectors','Component Mask','ComponentMask',[['Input','Input']],['Output'],'R=True\nG=True\nB=False\nA=False','cyan'),
+ T('Color','Desaturation','Desaturation',[['Input','Input'],['Fraction','Fraction']],['Output'],'LuminanceFactors=(R=0.300000,G=0.590000,B=0.110000,A=0.000000)','cyan'),
+ unary('Color','BlackBody','BlackBody','Temp','', 'cyan'), unary('Color','RGB to HSV','RgbToHsv','Input','', 'cyan'), unary('Color','HSV to RGB','HsvToRgb','Input','', 'cyan'),
+ unary('Color','SRGB to Working Color Space','SRGBColorToWorkingColorSpace','Input','', 'cyan'),
+
+ // Constants and parameters
+ T('Constants','Constant','Constant',[],['Output'],'R=0.500000','orange'),
+ T('Constants','Constant 2','Constant2Vector',[],['Output'],'R=0.000000\nG=0.000000','orange'),
+ T('Constants','Constant 3','Constant3Vector',[],['Output'],'Constant=(R=0.500000,G=0.500000,B=0.500000,A=0.000000)','orange'),
+ T('Constants','Constant 4','Constant4Vector',[],['Output'],'Constant=(R=0.500000,G=0.500000,B=0.500000,A=1.000000)','orange'),
+ T('Constants','Static Bool','StaticBool',[],['Output'],'Value=True','orange'),
+ T('Parameters','Scalar Parameter','ScalarParameter',[],['Output'],'DefaultValue=0.500000\nParameterName="Scalar"\nExpressionGUID=00000000000000000000000000000000','orange'),
+ T('Parameters','Vector Parameter','VectorParameter',[],['Output'],'DefaultValue=(R=1.000000,G=1.000000,B=1.000000,A=1.000000)\nParameterName="Vector"\nExpressionGUID=00000000000000000000000000000000','orange'),
+ T('Parameters','Static Bool Parameter','StaticBoolParameter',[],['Output'],'DefaultValue=True\nParameterName="StaticBool"\nExpressionGUID=00000000000000000000000000000000','orange'),
+ T('Parameters','Static Switch Parameter','StaticSwitchParameter',[['True','A'],['False','B']],['Output'],'DefaultValue=True\nParameterName="StaticSwitch"\nExpressionGUID=00000000000000000000000000000000','orange'),
+ T('Parameters','Static Component Mask Parameter','StaticComponentMaskParameter',[['Input','Input']],['Output'],'DefaultR=True\nDefaultG=True\nDefaultB=False\nDefaultA=False\nParameterName="Mask"\nExpressionGUID=00000000000000000000000000000000','orange'),
+ T('Parameters','Channel Mask Parameter','ChannelMaskParameter',[['Input','Input']],['Output'],'ParameterName="Channel"\nExpressionGUID=00000000000000000000000000000000','orange'),
+ T('Parameters','Collection Parameter','CollectionParameter',[],['Output'],'ParameterName="Parameter"','orange'),
+ T('Parameters','Dynamic Parameter','DynamicParameter',[],['Param1','Param2','Param3','Param4'],'','orange'),
+
+ // Textures
+ T('Textures','Texture Sample','TextureSample',[['UVs','Coordinates'],['Texture Object','TextureObject'],['Mip Value','MipValue'],['DDX','CoordinatesDX'],['DDY','CoordinatesDY']],['RGB','R','G','B','A'],'SamplerType=SAMPLERTYPE_Color','pink'),
+ T('Textures','Texture Sample Parameter 2D','TextureSampleParameter2D',[['UVs','Coordinates'],['Mip Value','MipValue'],['DDX','CoordinatesDX'],['DDY','CoordinatesDY']],['RGB','R','G','B','A'],'ParameterName="Texture"\nSamplerType=SAMPLERTYPE_Color\nExpressionGUID=00000000000000000000000000000000','pink'),
+ T('Textures','Texture Sample Parameter Cube','TextureSampleParameterCube',[['UVW','Coordinates'],['Mip Value','MipValue']],['RGB','R','G','B','A'],'ParameterName="Cube"\nSamplerType=SAMPLERTYPE_Color\nExpressionGUID=00000000000000000000000000000000','pink'),
+ T('Textures','Texture Sample Parameter Volume','TextureSampleParameterVolume',[['UVW','Coordinates'],['Mip Value','MipValue']],['RGB','R','G','B','A'],'ParameterName="Volume"\nSamplerType=SAMPLERTYPE_Color\nExpressionGUID=00000000000000000000000000000000','pink'),
+ T('Textures','Texture Object','TextureObject',[],['Texture Object'],'SamplerType=SAMPLERTYPE_Color','pink'),
+ T('Textures','Texture Object Parameter','TextureObjectParameter',[],['Texture Object'],'ParameterName="TextureObject"\nSamplerType=SAMPLERTYPE_Color\nExpressionGUID=00000000000000000000000000000000','pink'),
+ T('Textures','Texture Property','TextureProperty',[['Texture Object','TextureObject']],['Output'],'Property=TMTM_TextureSize','pink'),
+ T('Textures','Antialiased Texture Mask','AntialiasedTextureMask',[['UVs','Coordinates']],['Output'],'Threshold=0.500000\nChannel=TMGS_Red','pink'),
+
+ // Coordinates / geometry
+ T('Coordinates','Texture Coordinate','TextureCoordinate',[],['UV'],'CoordinateIndex=0\nUTiling=1.000000\nVTiling=1.000000','cyan'),
+ T('Coordinates','Panner','Panner',[['UVs','Coordinate'],['Time','Time'],['Speed','Speed']],['Output'],'SpeedX=0.000000\nSpeedY=0.000000\nConstCoordinate=0','cyan'),
+ T('Coordinates','Rotator','Rotator',[['UVs','Coordinate'],['Time','Time']],['Output'],'CenterX=0.500000\nCenterY=0.500000\nSpeed=0.250000','cyan'),
+ T('Coordinates','Bump Offset','BumpOffset',[['UVs','Coordinate'],['Height','Height']],['Output'],'HeightRatio=0.050000\nReferencePlane=0.500000\nConstCoordinate=0','cyan'),
+ T('Coordinates','World Position','WorldPosition',[],['XYZ'],'','cyan'),
+ T('Coordinates','Actor Position WS','ActorPositionWS',[],['XYZ'],'','cyan'),
+ T('Coordinates','Object Position WS','ObjectPositionWS',[],['XYZ'],'','cyan'),
+ T('Coordinates','Camera Position WS','CameraPositionWS',[],['XYZ'],'','cyan'),
+ T('Coordinates','Camera Vector WS','CameraVectorWS',[],['XYZ'],'','cyan'),
+ T('Coordinates','Reflection Vector WS','ReflectionVectorWS',[['Custom Reflection Vector','CustomWorldNormal']],['XYZ'],'','cyan'),
+ T('Coordinates','Pixel Normal WS','PixelNormalWS',[],['XYZ'],'','cyan'),
+ T('Coordinates','Vertex Normal WS','VertexNormalWS',[],['XYZ'],'','cyan'),
+ T('Coordinates','Vertex Tangent WS','VertexTangentWS',[],['XYZ'],'','cyan'),
+ T('Coordinates','Pre-Skinned Position','PreSkinnedPosition',[],['XYZ'],'','cyan'),
+ T('Coordinates','Pre-Skinned Normal','PreSkinnedNormal',[],['XYZ'],'','cyan'),
+ T('Coordinates','Object Orientation','ObjectOrientation',[],['XYZ'],'','cyan'),
+ T('Coordinates','Object Radius','ObjectRadius',[],['Radius'],'','cyan'),
+ T('Coordinates','Object Bounds','ObjectBounds',[],['XYZ'],'','cyan'),
+ T('Coordinates','Pre-Skinned Local Bounds','PreSkinnedLocalBounds',[],['Min','Max','Extent','Size'],'','cyan'),
+ T('Coordinates','Lightmap UVs','LightmapUVs',[],['UV'],'','cyan'),
+ T('Coordinates','Screen Position','ScreenPosition',[],['ViewportUV'],'','cyan'),
+ T('Coordinates','View Size','ViewSize',[],['ViewSize','InvViewSize'],'','cyan'),
+ T('Coordinates','Transform Vector','Transform',[['Input','Input']],['Output'],'TransformSourceType=TRANSFORMSOURCE_Tangent\nTransformType=TRANSFORM_World','cyan'),
+ T('Coordinates','Transform Position','TransformPosition',[['Input','Input']],['Output'],'TransformSourceType=TRANSFORMPOSSOURCE_Local\nTransformType=TRANSFORMPOSSOURCE_World','cyan'),
+ T('Coordinates','Rotate About Axis','RotateAboutAxis',[['Normalized Rotation Axis','NormalizedRotationAxis'],['Rotation Angle','RotationAngle'],['Pivot Point','PivotPoint'],['Position','Position']],['Result'],'','cyan'),
+
+ // Utility / masks / logic
+ T('Utility','Time','Time',[],['Output'],'','pink'), T('Utility','Delta Time','DeltaTime',[],['Output'],'','pink'),
+ T('Utility','Two Sided Sign','TwoSidedSign',[],['Output'],'','pink'), T('Utility','Vertex Color','VertexColor',[],['RGB','R','G','B','A'],'','pink'),
+ T('Utility','Per Instance Random','PerInstanceRandom',[],['Output'],'','pink'), T('Utility','Per Instance Fade','PerInstanceFadeAmount',[],['Output'],'','pink'),
+ T('Utility','Per Instance Custom Data','PerInstanceCustomData',[['Default Value','DefaultValue']],['Output'],'DataIndex=0\nDefaultValue=0.000000','pink'),
+ T('Utility','Previous Frame Switch','PreviousFrameSwitch',[['Current Frame','CurrentFrame'],['Previous Frame','PreviousFrame']],['Output'],'','pink'),
+ T('Utility','Sphere Mask','SphereMask',[['A','A'],['B','B'],['Radius','Radius'],['Hardness','Hardness']],['Output'],'AttenuationRadius=256.000000\nHardnessPercent=100.000000','pink'),
+ T('Utility','Fresnel','Fresnel',[['Exponent','ExponentIn'],['Base Reflect Fraction','BaseReflectFractionIn'],['Normal','Normal']],['Output'],'Exponent=5.000000\nBaseReflectFraction=0.040000','pink'),
+ T('Utility','Noise','Noise',[['Position','Position'],['Filter Width','FilterWidth']],['Output'],'Scale=1.000000\nQuality=1\nLevels=6\nOutputMin=-1.000000\nOutputMax=1.000000','pink'),
+ T('Utility','Vector Noise','VectorNoise',[['Position','Position']],['Output'],'Quality=1\nNoiseFunction=VNF_CellnoiseALU','pink'),
+ T('Utility','Reroute','Reroute',[['Input','Input']],['Output'],'','pink'),
+ T('Utility','Custom HLSL','Custom',[['Input0','custom:Input0']],['Output'],'Description="Custom"\nOutputType=CMOT_Float3','pink',{custom:true,code:'return Input0;'}),
+
+ // Scene / view
+ T('Scene','Scene Texture','SceneTexture',[['UV','Coordinates']],['Color','Size','InvSize'],'SceneTextureId=PPI_SceneColor','pink'),
+ T('Scene','Scene Color','SceneColor',[['UV','Input']],['Color'],'InputMode=Coordinates','pink'),
+ T('Scene','Scene Depth','SceneDepth',[['UV','Input']],['Depth'],'InputMode=Coordinates','pink'),
+ T('Scene','Pixel Depth','PixelDepth',[],['Depth'],'','pink'),
+ T('Scene','Depth Fade','DepthFade',[['Opacity','InOpacity'],['Fade Distance','FadeDistance']],['Output'],'FadeDistanceDefault=100.000000','pink'),
+ T('Scene','Distance Cull Fade','DistanceCullFade',[],['Output'],'','pink'),
+ T('Scene','Eye Adaptation','EyeAdaptation',[],['Output'],'','pink'),
+ T('Scene','Eye Adaptation Inverse','EyeAdaptationInverse',[['Light Value','LightValue'],['Alpha','Alpha']],['Output'],'','pink'),
+ T('Scene','Decal Color','DecalColor',[],['RGB'],'','pink'),
+ T('Scene','Decal Lifetime Opacity','DecalLifetimeOpacity',[],['Output'],'','pink'),
+
+ // Particle
+ T('Particles','Particle Color','ParticleColor',[],['RGB','R','G','B','A'],'','orange'),
+ T('Particles','Particle Position WS','ParticlePositionWS',[],['XYZ'],'','orange'),
+ T('Particles','Particle Direction','ParticleDirection',[],['XYZ'],'','orange'),
+ T('Particles','Particle Radius','ParticleRadius',[],['Radius'],'','orange'),
+ T('Particles','Particle Random','ParticleRandom',[],['Output'],'','orange'),
+ T('Particles','Particle Relative Time','ParticleRelativeTime',[],['Output'],'','orange'),
+ T('Particles','Particle Size','ParticleSize',[],['XY'],'','orange'),
+ T('Particles','Particle Speed','ParticleSpeed',[],['Speed'],'','orange'),
+ T('Particles','Particle Sprite Rotation','ParticleSpriteRotation',[],['Output'],'','orange'),
+ T('Particles','Particle Macro UV','ParticleMacroUV',[],['UV'],'','orange'),
+
+ // Distance fields / advanced rendering
+ T('Distance Fields','Distance To Nearest Surface','DistanceToNearestSurface',[['Position','Position']],['Distance'],'','cyan'),
+ T('Distance Fields','Distance Field Gradient','DistanceFieldGradient',[['Position','Position']],['Gradient'],'','cyan'),
+ T('Distance Fields','Distance Field Approx AO','DistanceFieldApproxAO',[['Position','Position'],['Normal','Normal']],['AO'],'','cyan'),
+ T('Switches','Quality Switch','QualitySwitch',[['Default','Default'],['Low','Inputs[0]'],['High','Inputs[1]'],['Epic','Inputs[2]']],['Output'],'','acid'),
+ T('Switches','Feature Level Switch','FeatureLevelSwitch',[['Default','Default']],['Output'],'','acid'),
+ T('Switches','Shading Path Switch','ShadingPathSwitch',[['Default','Default'],['Deferred','Inputs[0]'],['Forward','Inputs[1]']],['Output'],'','acid'),
+ T('Switches','Ray Tracing Quality Switch','RayTracingQualitySwitch',[['Normal','Normal'],['Ray Traced','RayTraced']],['Output'],'','acid'),
+ T('Switches','Nanite Replace','NaniteReplace',[['Default','Default'],['Nanite','Nanite']],['Output'],'','acid'),
+ T('Switches','Lightmass Replace','LightmassReplace',[['Realtime','Realtime'],['Lightmass','Lightmass']],['Output'],'','acid'),
+ T('Switches','Shadow Replace','ShadowReplace',[['Default','Default'],['Shadow','Shadow']],['Output'],'','acid'),
+
+ // Material attributes
+ T('Material Attributes','Make Material Attributes','MakeMaterialAttributes',[['Base Color','BaseColor'],['Metallic','Metallic'],['Specular','Specular'],['Roughness','Roughness'],['Emissive Color','EmissiveColor'],['Opacity','Opacity'],['Opacity Mask','OpacityMask'],['Normal','Normal'],['World Position Offset','WorldPositionOffset'],['Ambient Occlusion','AmbientOcclusion'],['Pixel Depth Offset','PixelDepthOffset']],['Material Attributes'],'','cyan'),
+ T('Material Attributes','Break Material Attributes','BreakMaterialAttributes',[['Material Attributes','MaterialAttributes']],['Base Color','Metallic','Specular','Roughness','Emissive Color','Opacity','Opacity Mask','Normal','World Position Offset','Ambient Occlusion','Pixel Depth Offset'],'','cyan'),
+ T('Material Attributes','Blend Material Attributes','BlendMaterialAttributes',[['A','A'],['B','B'],['Alpha','Alpha']],['Material Attributes'],'','cyan'),
+ T('Material Attributes','Get Material Attributes','GetMaterialAttributes',[['Material Attributes','MaterialAttributes']],['Output'],'','cyan'),
+ T('Material Attributes','Set Material Attributes','SetMaterialAttributes',[['Material Attributes','MaterialAttributes']],['Material Attributes'],'','cyan'),
+
+ // Runtime virtual texture
+ T('Virtual Texture','Runtime Virtual Texture Sample','RuntimeVirtualTextureSample',[['UV','Coordinates'],['World Position','WorldPosition']],['Base Color','Specular','Roughness','Normal','World Height','Mask'],'','pink'),
+ T('Virtual Texture','Runtime Virtual Texture Output','RuntimeVirtualTextureOutput',[['Base Color','BaseColor'],['Specular','Specular'],['Roughness','Roughness'],['Normal','Normal'],['World Height','WorldHeight'],['Opacity','Opacity'],['Mask','Mask']],[], '', 'pink'),
+ T('Virtual Texture','Runtime Virtual Texture Replace','RuntimeVirtualTextureReplace',[['Default','Default'],['Virtual Texture','VirtualTextureOutput']],['Output'],'','pink'),
+
+ // Material functions / misc nodes that commonly appear in graphs
+ T('Functions','Function Input','FunctionInput',[],['Output'],'InputName="Input"\nInputType=FunctionInput_Scalar','orange'),
+ T('Functions','Function Output','FunctionOutput',[['Input','A']],[], 'OutputName="Output"','orange'),
+ T('Functions','Material Function Call','MaterialFunctionCall',[],['Output'],'','orange',{raw:true}),
+
+ T('Advanced','Raw Expression','Multiply',[['A','A'],['B','B']],['Output'],'','pink',{raw:true})
+];
+
+// UE 5.4 MaterialExpression classes from Epic's Python API index. Curated entries above
+// carry useful pin/property metadata; the remainder are exposed as editable raw expressions
+// so the palette is not artificially limited to a small hard-coded subset.
+const UE54_EXPRESSION_CLASSES = `
+AbsorptionMediumMaterialOutput AtmosphericFogColor AtmosphericLightColor AtmosphericLightVector BentNormalCustomOutput BlendMaterialAttributes Bounds BreakMaterialAttributes Burn ClearCoatNormalCustomOutput CloudSampleAttribute Comment Composite ConstantDouble CurveAtlasRowParameter CustomOutput DataDrivenShaderPlatformInfoSwitch DBufferTexture DecalDerivative DecalMipmapLevel Difference DisjointOver DistanceFieldsRenderingSwitch Dodge DoubleVectorParameter ExecBegin ExecEnd FontSample FontSampleParameter ForLoop Fractal3D GenericConstant GetLocal GIReplace GoogleARCorePassthroughCamera HairAttributes HairColor HeightfieldMinMaxTexture IfThenElse In IsOrthographic LandscapeGrassOutput LandscapeLayerBlend LandscapeLayerCoords LandscapeLayerSample LandscapeLayerSwitch LandscapeLayerWeight LandscapePhysicalMaterialOutput LandscapeVisibilityMask Less LightVector Luminance MapARPassthroughCameraUV Mask MaterialAttributeLayers MaterialLayerOutput MaterialProxyReplace Matte Minus NamedRerouteDeclaration NamedRerouteUsage NeuralNetworkInput NeuralNetworkOutput ObjectLocalBounds Out Over Overlay ParticleMotionBlurFade ParticleSubUV PathTracingBufferTexture PathTracingQualitySwitch PathTracingRayTypeSwitch PerInstanceCustomData3Vector PhysicalMaterialOutput Place2D Plus PrecomputedAOMask Premult Ramp4 RampLeftRight RampTopBottom ReflectionCapturePassSwitch Remap RequiredSamplersSwitch Rotate2D RuntimeVirtualTextureSampleParameter SamplePhysicsIntegerField SamplePhysicsScalarField SamplePhysicsVectorField SceneDepthWithoutWater SceneTexelSize Screen SetLocal ShaderStageSwitch ShadingModel SingleLayerWaterMaterialOutput SkyAtmosphereAerialPerspective SkyAtmosphereDistantLightScatteredLuminance SkyAtmosphereLightDirection SkyAtmosphereLightDiskLuminance SkyAtmosphereLightIlluminance SkyAtmosphereLightIlluminanceOnGround SkyAtmosphereViewLuminance SkyLightEnvMapSample Sobol SparseVolumeTextureObject SparseVolumeTextureObjectParameter SparseVolumeTextureSample SparseVolumeTextureSampleParameter SpeedTree SphericalParticleOpacity SplitLeftRight SplitTopBottom SpriteTextureSampler Tangent TangentOutput TemporalSobol TerrainLayerCoords TerrainLayerSwitch TerrainLayerWeight TextureSampleParameter2DArray TextureSampleParameterBlur TextureSampleParameterCubeArray TextureSampleParameterSubUV ThinTranslucentMaterialOutput TruncateLWC Unpremult ViewProperty VirtualTextureFeatureSwitch VolumetricAdvancedMaterialInput VolumetricAdvancedMaterialOutput VolumetricCloudEmptySpaceSkippingInput VolumetricCloudEmptySpaceSkippingOutput WhileLoop
+`.trim().split(/\s+/);
+
+function prettyExpressionName(cls){return cls.replace(/([a-z0-9])([A-Z])/g,'$1 $2').replace(/([A-Z]+)([A-Z][a-z])/g,'$1 $2');}
+const haveClasses=new Set(CURATED_TEMPLATES.map(t=>t.class));
+const EXTENDED_TEMPLATES=UE54_EXPRESSION_CLASSES
+ .map(cls=>'MaterialExpression'+cls)
+ .filter(cls=>!haveClasses.has(cls))
+ .map(cls=>({cat:'UE 5.4 / Extended',name:prettyExpressionName(cls.replace('MaterialExpression','')),class:cls,accent:'pink',inputs:[],outputs:['Output'],props:'',raw:true,extended:true}));
+const TEMPLATES=[...CURATED_TEMPLATES,...EXTENDED_TEMPLATES];
+const ACCENTS={acid:'#d7ff3f',cyan:'#55f5dd',orange:'#ff7d3a',pink:'#ff5faa'};
+let graph={nodes:[],edges:[]};
+let selected=null, selection=new Set(), dragging=null, wiring=null, marquee=null;
+let view={x:180,y:120,scale:1};
+let idSeq=1;
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const nodesEl=$('#nodes'), wiresEl=$('#wires'), viewport=$('#viewport'), world=$('#world'), inspector=$('#inspector'), marqueeEl=$('#marquee');
+
+function uid(prefix='n'){return prefix+(idSeq++);} 
+function guid(){let s='';for(let i=0;i<32;i++)s+=Math.floor(Math.random()*16).toString(16).toUpperCase();return s;}
+function escHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function deepCopy(o){return JSON.parse(JSON.stringify(o));}
+function toast(msg){const e=$('#toast');e.textContent=msg;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1800)}
+function status(msg,kind=''){const e=$('#status');e.textContent=msg;e.className='status '+kind;}
+
+function makeNode(t,x=300,y=220,quiet=false){
+ const n={id:uid(),name:t.name,class:t.class,accent:t.accent||'cyan',x,y,inputs:(t.inputs||[]).map((p,i)=>({id:uid('p'),name:p[0],prop:p[1],pinGuid:guid()})),outputs:(t.outputs||['Output']).map((p,i)=>({id:uid('p'),name:p,pinGuid:guid(),index:i})),props:t.props||'',rawProps:'',custom:!!t.custom,code:t.code||'',raw:!!t.raw,nodeGuid:guid(),expressionGuid:guid()};
+ graph.nodes.push(n);if(!quiet){selectNode(n.id);render();saveLocal()}return n;
+}
+function findNode(id){return graph.nodes.find(n=>n.id===id)}
+function getInput(node,pinId){return node?.inputs.find(p=>p.id===pinId)}
+function getOutput(node,pinId){return node?.outputs.find(p=>p.id===pinId)}
+function selectNode(id,mode='replace'){
+ if(!id)return clearSelection();
+ if(mode==='toggle'){if(selection.has(id))selection.delete(id);else selection.add(id)}
+ else if(mode==='add')selection.add(id);
+ else selection=new Set([id]);
+ selected=selection.has(id)?id:(selection.values().next().value||null);renderSelection();renderInspector();updateCounts();
+}
+function clearSelection(){selection=new Set();selected=null;renderSelection();renderInspector();updateCounts();}
+function setSelection(ids,primary=null){selection=new Set(ids);selected=primary&&selection.has(primary)?primary:(selection.values().next().value||null);renderSelection();renderInspector();updateCounts();}
+function removeNode(id){graph.nodes=graph.nodes.filter(n=>n.id!==id);graph.edges=graph.edges.filter(e=>e.fromNode!==id&&e.toNode!==id);selection.delete(id);if(selected===id)selected=selection.values().next().value||null;render();saveLocal();}
+function removeSelected(){if(!selection.size)return;const ids=new Set(selection);graph.nodes=graph.nodes.filter(n=>!ids.has(n.id));graph.edges=graph.edges.filter(e=>!ids.has(e.fromNode)&&!ids.has(e.toNode));selection=new Set();selected=null;render();saveLocal();}
+function removeEdge(id){graph.edges=graph.edges.filter(e=>e.id!==id);renderWires();saveLocal();}
+
+function renderPalette(filter=''){
+ const p=$('#palette');p.innerHTML='';const groups={};
+ TEMPLATES.filter(t=>(t.name+' '+t.class+' '+t.cat).toLowerCase().includes(filter.toLowerCase())).forEach(t=>(groups[t.cat]??=[]).push(t));
+ for(const [cat,items] of Object.entries(groups)){
+   const d=document.createElement('div');d.className='cat';d.innerHTML='<h4>'+escHtml(cat)+'</h4>';
+   items.forEach(t=>{const b=document.createElement('button');b.className='node-add';b.dataset.accent=t.accent||'cyan';b.innerHTML='<span class="dot"></span><span>'+escHtml(t.name)+'</span>';b.onclick=()=>makeNode(t,(320-view.x)/view.scale+Math.random()*40,(220-view.y)/view.scale+Math.random()*60);d.appendChild(b)});p.appendChild(d);
+ }
+}
+function render(){renderNodes();renderWires();updateCounts();applyView();renderInspector();}
+function renderNodes(){
+ nodesEl.innerHTML='';
+ graph.nodes.forEach(n=>{
+  const el=document.createElement('div');el.className='node'+(selection.has(n.id)?' selected':'')+(n.id===selected?' primary-selected':'');el.dataset.id=n.id;el.style.left=n.x+'px';el.style.top=n.y+'px';el.style.setProperty('--accent',ACCENTS[n.accent]||n.accent||'#55f5dd');
+  el.innerHTML=`<div class="node-head"><div class="type">${n.custom?'HLSL':n.raw?'RAW':'MTRL'}</div><div class="name">${escHtml(n.name)}</div></div><div class="node-body">${n.inputs.map(p=>`<div class="pin-row"><span class="pin in" data-dir="in" data-pin="${p.id}"></span><span class="pin-label">${escHtml(p.name)}</span></div>`).join('')}${n.outputs.map(p=>`<div class="pin-row out"><span class="pin-label">${escHtml(p.name)}</span><span class="pin out" data-dir="out" data-pin="${p.id}"></span></div>`).join('')}</div><div class="node-foot">${escHtml(n.class.replace('MaterialExpression',''))}</div>`;
+  el.onmousedown=e=>{
+   if(e.target.closest('.pin'))return;
+   if((e.button===1||e.button===2)){
+    panning={sx:e.clientX,sy:e.clientY,x:view.x,y:view.y};viewport.classList.add('grabbing');e.preventDefault();e.stopPropagation();return;
+   }
+   if(e.button!==0||e.target.closest('input,textarea,select,button,a'))return;
+   const toggle=e.ctrlKey||e.metaKey,add=e.shiftKey;
+   if(toggle){selectNode(n.id,'toggle');if(!selection.has(n.id)){e.preventDefault();e.stopPropagation();return;}}
+   else if(add)selectNode(n.id,'add');
+   else if(!selection.has(n.id))selectNode(n.id,'replace');
+   else {selected=n.id;renderSelection();renderInspector();}
+   const positions={};selection.forEach(id=>{const sn=findNode(id);if(sn)positions[id]={x:sn.x,y:sn.y}});
+   dragging={id:n.id,startX:e.clientX,startY:e.clientY,positions};
+   el.classList.add('drag-active');
+   e.preventDefault();e.stopPropagation();
+  };
+  el.querySelectorAll('.pin').forEach(pin=>pin.onmousedown=e=>startWire(e,n.id,pin.dataset.pin,pin.dataset.dir));
+  nodesEl.appendChild(el);
+ });
+}
+function renderSelection(){ $$('.node').forEach(e=>{const on=selection.has(e.dataset.id);e.classList.toggle('selected',on);e.classList.toggle('primary-selected',on&&e.dataset.id===selected)});renderWires(); }
+function pinCenter(nodeId,pinId){const el=document.querySelector(`.node[data-id="${nodeId}"] .pin[data-pin="${pinId}"]`);if(!el)return null;const n=findNode(nodeId);const nr=document.querySelector(`.node[data-id="${nodeId}"]`).getBoundingClientRect(), pr=el.getBoundingClientRect();const wr=world.getBoundingClientRect();return{x:(pr.left+pr.width/2-wr.left)/view.scale,y:(pr.top+pr.height/2-wr.top)/view.scale};}
+function renderWires(){
+ wiresEl.innerHTML='';
+ graph.edges.forEach(e=>{const a=pinCenter(e.fromNode,e.fromPin),b=pinCenter(e.toNode,e.toPin);if(!a||!b)return;const dx=Math.max(60,Math.abs(b.x-a.x)*.48);const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',`M ${a.x} ${a.y} C ${a.x+dx} ${a.y}, ${b.x-dx} ${b.y}, ${b.x} ${b.y}`);p.setAttribute('class','wire'+(selection.has(e.fromNode)&&selection.has(e.toNode)?' selected':''));p.style.pointerEvents='stroke';p.onclick=()=>removeEdge(e.id);wiresEl.appendChild(p)});
+ if(wiring&&wiring.mouse){const a=pinCenter(wiring.node,wiring.pin);if(a){const b=wiring.mouse,dx=Math.max(60,Math.abs(b.x-a.x)*.48);const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',`M ${a.x} ${a.y} C ${a.x+(wiring.dir==='out'?dx:-dx)} ${a.y}, ${b.x+(wiring.dir==='out'?-dx:dx)} ${b.y}, ${b.x} ${b.y}`);p.setAttribute('class','wire preview');wiresEl.appendChild(p)}}
+}
+function updateCounts(){$('#nodeCount').textContent=graph.nodes.length;$('#edgeCount').textContent=graph.edges.length;$('#selectedCount').textContent=selection.size;}
+function startWire(e,node,pin,dir){wiring={node,pin,dir,mouse:null};e.stopPropagation();e.preventDefault();}
+function finishWire(e){if(!wiring)return;const target=e.target.closest('.pin');if(target){const nodeEl=target.closest('.node'),dir=target.dataset.dir;if(nodeEl&&dir!==wiring.dir){let fromNode,fromPin,toNode,toPin;if(wiring.dir==='out'){fromNode=wiring.node;fromPin=wiring.pin;toNode=nodeEl.dataset.id;toPin=target.dataset.pin}else{fromNode=nodeEl.dataset.id;fromPin=target.dataset.pin;toNode=wiring.node;toPin=wiring.pin}graph.edges=graph.edges.filter(x=>!(x.toNode===toNode&&x.toPin===toPin));graph.edges.push({id:uid('e'),fromNode,fromPin,toNode,toPin});saveLocal();}}wiring=null;renderWires();}
+
+function applyView(){world.style.transform=`translate(${view.x}px,${view.y}px) scale(${view.scale})`;}
+viewport.onwheel=e=>{e.preventDefault();const rect=viewport.getBoundingClientRect(),mx=e.clientX-rect.left,my=e.clientY-rect.top;const old=view.scale;const next=Math.min(1.8,Math.max(.35,old*(e.deltaY<0?1.1:.9)));view.x=mx-(mx-view.x)*(next/old);view.y=my-(my-view.y)*(next/old);view.scale=next;applyView();renderWires();};
+let panning=null;
+function marqueeSelectionAt(x1,y1,x2,y2,mode,base){
+ const vr=viewport.getBoundingClientRect(),l=Math.min(x1,x2),r=Math.max(x1,x2),t=Math.min(y1,y2),b=Math.max(y1,y2),hits=new Set();
+ $$('.node').forEach(el=>{const nr=el.getBoundingClientRect(),nl=nr.left-vr.left,nt=nr.top-vr.top,nrgt=nr.right-vr.left,nb=nr.bottom-vr.top;if(nrgt>=l&&nl<=r&&nb>=t&&nt<=b)hits.add(el.dataset.id)});
+ let next;if(mode==='add')next=new Set([...base,...hits]);else if(mode==='toggle'){next=new Set(base);hits.forEach(id=>next.has(id)?next.delete(id):next.add(id))}else next=hits;
+ selection=next;if(!selection.has(selected))selected=hits.values().next().value||selection.values().next().value||null;renderSelection();renderInspector();updateCounts();
+}
+viewport.onmousedown=e=>{if(e.target===viewport||e.target===world||e.target===wiresEl){
+ if(e.button===1||e.button===2||e.button===0&&e.altKey){panning={sx:e.clientX,sy:e.clientY,x:view.x,y:view.y};viewport.classList.add('grabbing');e.preventDefault();return}
+ if(e.button===0){const vr=viewport.getBoundingClientRect(),sx=e.clientX-vr.left,sy=e.clientY-vr.top;marquee={sx,sy,x:sx,y:sy,mode:(e.ctrlKey||e.metaKey)?'toggle':e.shiftKey?'add':'replace',base:new Set(selection),moved:false};if(marquee.mode==='replace')clearSelection();marqueeEl.style.left=sx+'px';marqueeEl.style.top=sy+'px';marqueeEl.style.width='0px';marqueeEl.style.height='0px';marqueeEl.classList.add('show');e.preventDefault()}
+}};
+viewport.oncontextmenu=e=>e.preventDefault();
+window.onmousemove=e=>{
+ if(dragging){const dx=(e.clientX-dragging.startX)/view.scale,dy=(e.clientY-dragging.startY)/view.scale;Object.entries(dragging.positions).forEach(([id,pos])=>{const n=findNode(id);if(!n)return;n.x=Math.round(pos.x+dx);n.y=Math.round(pos.y+dy);const el=document.querySelector(`.node[data-id="${id}"]`);if(el){el.style.left=n.x+'px';el.style.top=n.y+'px'}});renderWires()}
+ else if(panning){view.x=panning.x+e.clientX-panning.sx;view.y=panning.y+e.clientY-panning.sy;applyView()}
+ else if(marquee){const vr=viewport.getBoundingClientRect();marquee.x=Math.max(0,Math.min(vr.width,e.clientX-vr.left));marquee.y=Math.max(0,Math.min(vr.height,e.clientY-vr.top));if(Math.abs(marquee.x-marquee.sx)>3||Math.abs(marquee.y-marquee.sy)>3)marquee.moved=true;const l=Math.min(marquee.sx,marquee.x),t=Math.min(marquee.sy,marquee.y);marqueeEl.style.left=l+'px';marqueeEl.style.top=t+'px';marqueeEl.style.width=Math.abs(marquee.x-marquee.sx)+'px';marqueeEl.style.height=Math.abs(marquee.y-marquee.sy)+'px';marqueeSelectionAt(marquee.sx,marquee.sy,marquee.x,marquee.y,marquee.mode,marquee.base)}
+ else if(wiring){const r=world.getBoundingClientRect();wiring.mouse={x:(e.clientX-r.left)/view.scale,y:(e.clientY-r.top)/view.scale};renderWires();}
+};
+window.onmouseup=e=>{if(dragging){document.querySelector('.node.drag-active')?.classList.remove('drag-active');dragging=null;saveLocal()}if(panning){panning=null;viewport.classList.remove('grabbing')}if(marquee){if(!marquee.moved&&marquee.mode==='replace')clearSelection();marquee=null;marqueeEl.classList.remove('show')}finishWire(e)};
+window.onkeydown=e=>{const editing=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName);if((e.key==='Delete'||e.key==='Backspace')&&selection.size&&!editing){removeSelected();e.preventDefault()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'&&!editing){setSelection(graph.nodes.map(n=>n.id),graph.nodes[0]?.id||null);e.preventDefault()}if(e.key==='Escape'){wiring=null;if(marquee){marquee=null;marqueeEl.classList.remove('show')}renderWires()}};
+
+function renderInspector(){
+ const n=findNode(selected);if(!n){inspector.innerHTML='<div class="empty-inspector">Select a node to edit its Unreal expression properties.<br><br>Box-drag empty canvas to select groups. Shift/Ctrl adds to selection. Drag any selected node to move the group. Click a wire to delete it.</div>';return}
+ inspector.innerHTML=`
+ <div class="panel-title">Node inspector</div>
+ <div class="inspect-section"><h3>Identity</h3>
+  <div class="field"><label>Display name</label><input data-k="name" value="${escHtml(n.name)}"></div>
+  <div class="field"><label>Unreal expression class</label><input data-k="class" value="${escHtml(n.class)}"></div>
+  <div class="two"><div class="field"><label>X</label><input data-k="x" type="number" value="${n.x}"></div><div class="field"><label>Y</label><input data-k="y" type="number" value="${n.y}"></div></div>
+ </div>
+ ${n.custom?`<div class="inspect-section custom-code"><h3>Custom HLSL</h3><div class="field"><label>Code</label><textarea data-k="code" spellcheck="false">${escHtml(n.code)}</textarea></div><div class="notice ok">Inputs below become <b>Inputs(n)</b> entries and callable HLSL identifiers in Unreal.</div></div>`:''}
+ <div class="inspect-section"><h3>Inputs</h3><div id="inputEdit">${n.inputs.map(p=>`<div class="pin-edit" data-p="${p.id}"><input data-pk="name" value="${escHtml(p.name)}" title="Visible pin name"><input data-pk="prop" value="${escHtml(p.prop)}" title="Serialized property (A, UVs, Alpha…) or custom:Name"><button class="xbtn">×</button></div>`).join('')}</div><button class="smallbtn" id="addInput">+ Add input</button></div>
+ <div class="inspect-section"><h3>Outputs</h3><div id="outputEdit">${n.outputs.map(p=>`<div class="pin-edit" data-p="${p.id}"><input data-pk="name" value="${escHtml(p.name)}"><input data-pk="index" type="number" value="${p.index||0}"><button class="xbtn">×</button></div>`).join('')}</div><button class="smallbtn" id="addOutput">+ Add output</button></div>
+ <div class="inspect-section"><h3>Serialized properties</h3><div class="field"><label>Expression property lines</label><textarea data-k="props" spellcheck="false" placeholder="ParameterName=&quot;MyParam&quot;\nDefaultValue=1.000000">${escHtml(n.props||'')}</textarea></div>${n.rawProps?`<div class="field"><label>Preserved imported properties</label><textarea data-k="rawProps" spellcheck="false">${escHtml(n.rawProps)}</textarea></div>`:''}<div class="notice">Advanced: property lines are emitted directly inside the MaterialExpression object. Connection properties generated from pins override duplicate keys.</div></div>
+ <div class="inspect-section"><button class="btn danger" id="deleteNode" style="width:100%">Delete node</button></div>`;
+ inspector.querySelectorAll('[data-k]').forEach(el=>el.oninput=()=>{const k=el.dataset.k;n[k]=(k==='x'||k==='y')?Number(el.value):el.value;if(k==='x'||k==='y')renderNodes();else renderSelection();renderWires();saveLocal()});
+ inspector.querySelectorAll('.pin-edit').forEach(row=>{row.querySelectorAll('[data-pk]').forEach(el=>el.oninput=()=>{const p=n.inputs.find(x=>x.id===row.dataset.p)||n.outputs.find(x=>x.id===row.dataset.p);if(p)p[el.dataset.pk]=el.dataset.pk==='index'?Number(el.value):el.value;renderNodes();renderWires();saveLocal()});row.querySelector('.xbtn').onclick=()=>{const pid=row.dataset.p;n.inputs=n.inputs.filter(p=>p.id!==pid);n.outputs=n.outputs.filter(p=>p.id!==pid);graph.edges=graph.edges.filter(e=>e.fromPin!==pid&&e.toPin!==pid);render();saveLocal()}});
+ $('#addInput').onclick=()=>{n.inputs.push({id:uid('p'),name:'Input'+n.inputs.length,prop:n.custom?'custom:Input'+n.inputs.length:'Input',pinGuid:guid()});render();saveLocal()};
+ $('#addOutput').onclick=()=>{n.outputs.push({id:uid('p'),name:'Output'+n.outputs.length,index:n.outputs.length,pinGuid:guid()});render();saveLocal()};
+ $('#deleteNode').onclick=()=>removeNode(n.id);
+}
+
+function edgeInto(n,p,allowed=null){return graph.edges.find(e=>e.toNode===n.id&&e.toPin===p.id&&(!allowed||allowed.has(e.fromNode)&&allowed.has(e.toNode)))}
+function refFor(edge){if(!edge)return null;const src=findNode(edge.fromNode),op=getOutput(src,edge.fromPin);if(!src||!op)return null;return {src,op};}
+function unrealString(s){return '"'+String(s).replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\r?\n/g,'\\r\\n').replace(/\t/g,'\\t')+'"'}
+function exprBaseName(n,indexMap=null){const i=indexMap?.get(n.id)??graph.nodes.indexOf(n);return n.class+'_'+i}
+function graphName(n,indexMap=null){const i=indexMap?.get(n.id)??graph.nodes.indexOf(n);return 'MaterialGraphNode_'+i}
+function expressionRef(src,outputIndex=0,indexMap=null){const core=`${src.class}'"${graphName(src,indexMap)}.${exprBaseName(src,indexMap)}"'`;return outputIndex?`${core},OutputIndex=${outputIndex}`:core}
+function inputConnectionLine(n,p,allowed=null,indexMap=null){const e=edgeInto(n,p,allowed),r=refFor(e);if(!r)return null;const inside=`Expression=${expressionRef(r.src,r.op.index||0,indexMap)}`;if(n.custom||p.prop.startsWith('custom:'))return `Inputs(${n.inputs.indexOf(p)})=(InputName=${unrealString(p.name)},Input=(${inside}))`;return `${p.prop}=(${inside})`;}
+function outputPinCategory(name){if(['R','G','B','A','RGB','RGBA'].includes(name))return 'mask';return '';}
+function pinLine(pin,dir,node,allowed=null,indexMap=null){
+ let linked=[];
+ if(dir==='in'){const e=edgeInto(node,pin,allowed);if(e){const src=findNode(e.fromNode),op=getOutput(src,e.fromPin);linked.push(`${graphName(src,indexMap)} ${op.pinGuid}`)}}
+ else graph.edges.filter(e=>e.fromNode===node.id&&e.fromPin===pin.id&&(!allowed||allowed.has(e.fromNode)&&allowed.has(e.toNode))).forEach(e=>{const dst=findNode(e.toNode),ip=getInput(dst,e.toPin);if(dst&&ip)linked.push(`${graphName(dst,indexMap)} ${ip.pinGuid}`)});
+ const parts=[`PinId=${pin.pinGuid}`,`PinName=${unrealString(pin.name)}`];if(dir==='out')parts.push('Direction="EGPD_Output"');parts.push(`PinType.PinCategory=${unrealString(dir==='in'?'optional':outputPinCategory(pin.name))}`,'PinType.PinSubCategory=""','PinType.PinSubCategoryObject=None','PinType.PinSubCategoryMemberReference=()','PinType.PinValueType=()','PinType.ContainerType=None','PinType.bIsReference=False','PinType.bIsConst=False','PinType.bIsWeakPointer=False');if(linked.length)parts.push(`LinkedTo=(${linked.join(',')},)`);parts.push('PersistentGuid=00000000000000000000000000000000','bHidden=False','bNotConnectable=False','bDefaultValueIsReadOnly=False','bDefaultValueIsIgnored=False','bAdvancedView=False','bOrphanedPin=False');return `   CustomProperties Pin (${parts.join(',')})`;
+}
+function stripPropConflicts(text,keys){return String(text||'').split(/\r?\n/).filter(line=>{const m=line.trim().match(/^([A-Za-z_][\w]*)(?:\(\d+\))?=/);return !m||!keys.has(m[1])}).join('\n').trim();}
+function exportUE(nodeIds=null){
+ const nodes=nodeIds?graph.nodes.filter(n=>nodeIds.has(n.id)):graph.nodes.slice(),allowed=new Set(nodes.map(n=>n.id)),indexMap=new Map(nodes.map((n,i)=>[n.id,i])),chunks=[];
+ nodes.forEach(n=>{
+  const gn=graphName(n,indexMap),en=exprBaseName(n,indexMap);const conn=[];const connKeys=new Set();
+  n.inputs.forEach(p=>{const line=inputConnectionLine(n,p,allowed,indexMap);if(line){conn.push(line);connKeys.add(n.custom?'Inputs':p.prop)}});
+  if(n.custom){n.inputs.forEach((p,i)=>{if(!edgeInto(n,p,allowed))conn.push(`Inputs(${i})=(InputName=${unrealString(p.name)},Input=())`)});connKeys.add('Inputs')}
+  let props=stripPropConflicts([n.props,n.rawProps].filter(Boolean).join('\n'),connKeys);
+  const lines=[];lines.push(`Begin Object Class=/Script/UnrealEd.MaterialGraphNode Name=${unrealString(gn)}`);lines.push(`   Begin Object Class=/Script/Engine.${n.class} Name=${unrealString(en)}`);lines.push('   End Object');lines.push(`   Begin Object Name=${unrealString(en)}`);
+  if(n.custom)lines.push(`      Code=${unrealString(n.code||'')}`);
+  if(props)props.split(/\r?\n/).forEach(l=>lines.push('      '+l.trim()));
+  conn.forEach(l=>lines.push('      '+l));
+  lines.push(`      MaterialExpressionEditorX=${Math.round(n.x)}`,`      MaterialExpressionEditorY=${Math.round(n.y)}`,`      MaterialExpressionGuid=${n.expressionGuid||guid()}`,'   End Object');
+  lines.push(`   MaterialExpression=${n.class}'"${en}"'`,`   NodePosX=${Math.round(n.x)}`,`   NodePosY=${Math.round(n.y)}`,`   NodeGuid=${n.nodeGuid||guid()}`);
+  n.inputs.forEach(p=>lines.push(pinLine(p,'in',n,allowed,indexMap)));n.outputs.forEach(p=>lines.push(pinLine(p,'out',n,allowed,indexMap)));lines.push('End Object');chunks.push(lines.join('\n'));
+ });
+ return chunks.join('\n');
+}
+
+function splitGraphBlocks(text){const lines=text.replace(/\r/g,'').split('\n'),blocks=[];let cur=[],depth=0;for(const line of lines){const trim=line.trim();if(depth===0&&/^Begin Object Class=.*MaterialGraphNode/.test(trim)){cur=[line];depth=1;continue}if(depth>0){cur.push(line);if(/^Begin Object\b/.test(trim))depth++;if(/^End Object\b/.test(trim)){depth--;if(depth===0){blocks.push(cur.join('\n'));cur=[]}}}}return blocks;}
+function unquote(s){if(!s)return '';s=s.trim();if(s.startsWith('"')&&s.endsWith('"'))s=s.slice(1,-1);return s.replace(/\\r\\n/g,'\n').replace(/\\n/g,'\n').replace(/\\t/g,'\t').replace(/\\"/g,'"').replace(/\\\\/g,'\\');}
+function importUE(text){
+ const blocks=splitGraphBlocks(text);if(!blocks.length)throw new Error('No MaterialGraphNode blocks found. Copy nodes from the Unreal Material Editor, then paste that text here.');
+ const oldGraph=graph;graph={nodes:[],edges:[]};const byGraphName={};const pending=[];
+ blocks.forEach((b,bi)=>{
+  const graphNameMatch=b.match(/Begin Object Class=.*MaterialGraphNode Name=(?:"([^"]+)"|([^\s]+))/);const gn=graphNameMatch?(graphNameMatch[1]||graphNameMatch[2]):'MaterialGraphNode_'+bi;
+  const cm=b.match(/Begin Object Class=\/Script\/Engine\.(MaterialExpression[\w]+) Name=(?:"([^"]+)"|([^\s]+))/)||b.match(/Begin Object Class=(MaterialExpression[\w]+) Name=(?:"([^"]+)"|([^\s]+))/);if(!cm)return;const cls=cm[1],en=cm[2]||cm[3];
+  const x=Number((b.match(/NodePosX=(-?\d+)/)||b.match(/MaterialExpressionEditorX=(-?\d+)/)||[])[1]||bi*220),y=Number((b.match(/NodePosY=(-?\d+)/)||b.match(/MaterialExpressionEditorY=(-?\d+)/)||[])[1]||0);
+  const custom=cls==='MaterialExpressionCustom';const template=TEMPLATES.find(t=>t.class===cls&&!t.raw)||{name:cls.replace('MaterialExpression',''),class:cls,accent:'cyan',inputs:[],outputs:['Output'],props:''};
+  const n={id:uid(),name:template.name,class:cls,accent:template.accent||'cyan',x,y,inputs:[],outputs:[],props:'',rawProps:'',custom,code:'',raw:!TEMPLATES.some(t=>t.class===cls&&!t.raw),nodeGuid:(b.match(/NodeGuid=([A-F0-9]+)/i)||[])[1]||guid(),expressionGuid:(b.match(/MaterialExpressionGuid=([A-F0-9]+)/i)||[])[1]||guid(),_gn:gn,_en:en};
+  const exprStart=b.indexOf(`Begin Object Name="${en}"`)>=0?b.indexOf(`Begin Object Name="${en}"`):b.indexOf(`Begin Object Name=${en}`);let exprBody='';if(exprStart>=0){const rest=b.slice(exprStart).split('\n');let d=0,acc=[];for(let i=0;i<rest.length;i++){const tr=rest[i].trim();if(i===0){d=1;continue}if(/^Begin Object\b/.test(tr))d++;if(/^End Object\b/.test(tr)){d--;if(d===0)break}if(d===1)acc.push(rest[i].trim())}exprBody=acc.join('\n')}
+  const codeM=exprBody.match(/^Code=(.*)$/m);if(codeM)n.code=unquote(codeM[1]);
+  const pinRe=/CustomProperties Pin \(([^\n]+)\)/g;let pm;while((pm=pinRe.exec(b))){const s=pm[1],id=(s.match(/PinId=([A-F0-9]+)/i)||[])[1]||guid(),nm=unquote((s.match(/PinName=("(?:\\.|[^"])*")/)||[])[1]||'"Pin"'),out=/Direction="?EGPD_Output"?/.test(s),p={id:uid('p'),name:nm,pinGuid:id,index:0};if(out){p.index=n.outputs.length;n.outputs.push(p)}else{p.prop=nm;n.inputs.push(p)}}
+  if(!n.outputs.length)n.outputs=[{id:uid('p'),name:'Output',pinGuid:guid(),index:0}];
+  if(custom){const cre=/Inputs\((\d+)\)=\(InputName=("(?:\\.|[^"])*")[\s\S]*?\)(?=\n|$)/g;let m;const named=[];while((m=cre.exec(exprBody)))named[Number(m[1])]=unquote(m[2]);named.forEach((name,i)=>{if(n.inputs[i]){n.inputs[i].name=name;n.inputs[i].prop='custom:'+name}else n.inputs.push({id:uid('p'),name,prop:'custom:'+name,pinGuid:guid()})});}
+  else { // Infer serialized input-property keys by matching expression references and pin order/name.
+    n.inputs.forEach(p=>p.prop=p.name);
+  }
+  const universal=new Set(['Code','MaterialExpressionEditorX','MaterialExpressionEditorY','MaterialExpressionGuid','Material','Function']);
+  const kept=[];exprBody.split('\n').forEach(l=>{const t=l.trim();if(!t)return;const mm=t.match(/^([A-Za-z_]\w*)(?:\(\d+\))?=/);if(!mm)return;const k=mm[1];if(universal.has(k)||k==='Inputs'&&custom||/\(Expression=MaterialExpression/.test(t))return;kept.push(t)});n.props=kept.join('\n');
+  graph.nodes.push(n);byGraphName[gn]=n;
+  // Parse connection properties from expression body.
+  if(custom){const rr=/Inputs\((\d+)\)=\(InputName=("(?:\\.|[^"])*"),Input=\(Expression=MaterialExpression[\w]+'"([^".]+)\.[^"]+"'(?:,OutputIndex=(\d+))?[^)]*\)\)/g;let m;while((m=rr.exec(exprBody)))pending.push({to:n,inputIndex:Number(m[1]),srcName:m[3],outIndex:Number(m[4]||0)});}
+  else {const rr=/^([A-Za-z_]\w*)=\(Expression=MaterialExpression[\w]+'"([^".]+)\.[^"]+"'(?:,OutputIndex=(\d+))?[^)]*\)/gm;let m;while((m=rr.exec(exprBody))){let idx=n.inputs.findIndex(p=>p.prop===m[1]||p.name===m[1]);if(idx<0){n.inputs.push({id:uid('p'),name:m[1],prop:m[1],pinGuid:guid()});idx=n.inputs.length-1}pending.push({to:n,inputIndex:idx,srcName:m[2],outIndex:Number(m[3]||0)})}}
+ });
+ pending.forEach(c=>{const src=byGraphName[c.srcName],ip=c.to.inputs[c.inputIndex];if(src&&ip){const op=src.outputs[c.outIndex]||src.outputs[0];graph.edges.push({id:uid('e'),fromNode:src.id,fromPin:op.id,toNode:c.to.id,toPin:ip.id})}});
+ graph.nodes.forEach(n=>{delete n._gn;delete n._en});selected=graph.nodes[0]?.id||null;selection=selected?new Set([selected]):new Set();render();frameAll();saveLocal();toast(`Imported ${graph.nodes.length} material nodes`);status(`Imported ${graph.nodes.length} nodes`,'good');
+}
+
+
+// MTRL//SCRIPT v1 -------------------------------------------------------------
+// Compact, deterministic chat -> graph protocol. A recipe may be pasted directly
+// from markdown; fences/prose outside MTRL_SCRIPT..END_SCRIPT are ignored.
+const MTRL_PROTOCOL = `MTRL//SCRIPT v1 — chat-to-material graph protocol
+
+Ask an assistant for a MTRL//SCRIPT recipe. Paste the returned block into AI Build.
+The tool creates the graph; Copy All or Copy Selected then emits UE 5.4.x clipboard text.
+For a fresh chat, prefer the AI Context export: it includes this protocol plus the exact live node catalog, curated pins/defaults, and safe rules for extended nodes.
+
+Canonical commands (pipe-separated):
+MTRL_SCRIPT 1
+GRAPH | Human readable graph name
+MODE | replace                  # replace or append
+NODE | id | Node Name Or Class | x | y | optional display name
+SCALAR | id | Parameter Name | default | x | y
+VECTOR | id | Parameter Name | r,g,b,a | x | y
+CONST | id | value | x | y
+VEC2 | id | x,y | xPos | yPos
+VEC3 | id | x,y,z | xPos | yPos
+VEC4 | id | x,y,z,w | xPos | yPos
+CUSTOM | id | Display Name | CMOT_Float1/2/3/4 | x | y
+INPUT | nodeId | Visible Name | serialized property (optional)
+OUTPUT | nodeId | Visible Name | output index (optional)
+PROPS | nodeId
+Exact Unreal serialized property lines...
+ENDPROPS
+CODE | customNodeId
+HLSL code...
+ENDCODE
+LINK | fromNode | outputPin | toNode | inputPin
+END_SCRIPT
+
+Notes:
+- Node type may be a palette name (Multiply, Fresnel, Texture Sample), the short class
+  name (TextureCoordinate), or full class (MaterialExpressionTextureCoordinate).
+- Pins are addressed by visible pin name; numeric indexes are also accepted.
+- INPUT/OUTPUT replaces a recipe-created node's default pins the first time it is used.
+- PROPS is emitted directly into the Unreal MaterialExpression object.
+- Custom HLSL INPUT properties automatically become custom:<name> if omitted.
+- Lines beginning # or // are comments. Unknown commands fail loudly instead of guessing.
+- The protocol is construction syntax, not an encyclopedia of Unreal node semantics. The AI Context export supplies the live palette/pins. For unfamiliar EXTENDED nodes, verify UE 5.4 docs/source when research is available; otherwise do not invent pins/properties.
+
+Example:
+MTRL_SCRIPT 1
+GRAPH | UV Pulse
+MODE | replace
+NODE | uv | Texture Coordinate | 80 | 120
+NODE | time | Time | 80 | 320
+SCALAR | speed | Pulse Speed | 0.35 | 300 | 320
+NODE | mul | Multiply | 520 | 300
+CUSTOM | warp | UV Warp | CMOT_Float2 | 760 | 120
+INPUT | warp | UV
+INPUT | warp | T
+CODE | warp
+float2 w = float2(sin((UV.y+T)*6.28318), cos((UV.x+T)*6.28318));
+return UV + w * 0.02;
+ENDCODE
+LINK | time | Output | mul | A
+LINK | speed | Output | mul | B
+LINK | uv | UV | warp | UV
+LINK | mul | Output | warp | T
+END_SCRIPT`;
+
+function recipeTextOnly(text){
+ text=String(text||'').replace(/\r/g,'').trim();
+ const start=text.search(/MTRL(?:\/\/)?_?SCRIPT\s+1/i);
+ if(start>=0){const tail=text.slice(start),end=tail.search(/\nEND_SCRIPT\b/i);return end>=0?tail.slice(0,end+'\nEND_SCRIPT'.length):tail}
+ const fence=text.match(/```(?:mtrl|mtrlbridge|text|json)?\s*\n([\s\S]*?)```/i);return fence?fence[1].trim():text;
+}
+function norm(s){return String(s||'').trim().toLowerCase().replace(/[\s_\-\/]+/g,'')}
+function resolveRecipeTemplate(type){
+ const q=String(type||'').trim(),nq=norm(q);
+ let t=TEMPLATES.find(x=>norm(x.name)===nq||norm(x.class)===nq||norm(x.class.replace('MaterialExpression',''))===nq);
+ if(t)return t;
+ if(/^MaterialExpression[A-Za-z0-9_]+$/.test(q))return {cat:'Recipe / Raw',name:prettyExpressionName(q.replace('MaterialExpression','')),class:q,accent:'pink',inputs:[],outputs:['Output'],props:'',raw:true};
+ if(/^[A-Za-z][A-Za-z0-9_]+$/.test(q))return {cat:'Recipe / Raw',name:prettyExpressionName(q),class:'MaterialExpression'+q,accent:'pink',inputs:[],outputs:['Output'],props:'',raw:true};
+ throw new Error(`Unknown node type: ${q}`);
+}
+function setPropLine(n,key,value){
+ const lines=String(n.props||'').split(/\r?\n/).filter(Boolean);const re=new RegExp('^'+key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'=');let found=false;
+ for(let i=0;i<lines.length;i++)if(re.test(lines[i].trim())){lines[i]=`${key}=${value}`;found=true;break}
+ if(!found)lines.push(`${key}=${value}`);n.props=lines.join('\n');
+}
+function recipePin(node,ref,dir){
+ const arr=dir==='out'?node.outputs:node.inputs;const s=String(ref||'').trim();if(/^#?\d+$/.test(s))return arr[Number(s.replace('#',''))]||null;
+ const ns=norm(s);return arr.find(p=>norm(p.name)===ns||dir==='in'&&norm(String(p.prop||'').replace(/^custom:/,''))===ns)||null;
+}
+function parseNums(s,count){const a=String(s||'').split(',').map(v=>Number(v.trim()));while(a.length<count)a.push(count===4&&a.length===3?1:0);return a.slice(0,count).map(v=>Number.isFinite(v)?v:0)}
+function importRecipe(source){
+ const text=recipeTextOnly(source);if(!/^MTRL(?:\/\/)?_?SCRIPT\s+1/im.test(text))throw new Error('No MTRL_SCRIPT 1 recipe found. Click AI protocol for the format.');
+ const lines=text.split('\n');let mode='replace',graphLabel='AI Material',block=null,blockId='',blockLines=[];const commands=[];
+ for(let i=0;i<lines.length;i++){
+  const raw=lines[i],trim=raw.trim();if(!trim||trim.startsWith('#')||trim.startsWith('//')||/^MTRL(?:\/\/)?_?SCRIPT\s+1$/i.test(trim)||/^END_SCRIPT$/i.test(trim))continue;
+  if(block){if(trim.toUpperCase()==='END'+block){commands.push({cmd:block,id:blockId,body:blockLines.join('\n')});block=null;blockId='';blockLines=[]}else blockLines.push(raw);continue}
+  const parts=raw.split('|').map(x=>x.trim()),cmd=parts.shift().trim().toUpperCase();
+  if(cmd==='PROPS'||cmd==='CODE'){block=cmd;blockId=parts[0]||'';blockLines=[];continue}
+  commands.push({cmd,args:parts,line:i+1});
+ }
+ if(block)throw new Error(`${block} block for ${blockId} is missing END${block}`);
+ commands.forEach(c=>{if(c.cmd==='MODE')mode=(c.args[0]||'replace').toLowerCase();if(c.cmd==='GRAPH')graphLabel=c.args[0]||graphLabel});
+ if(!['replace','append'].includes(mode))throw new Error(`MODE must be replace or append, got ${mode}`);
+ if(mode==='replace'){graph={nodes:[],edges:[]};selected=null;selection=new Set();idSeq=1}
+ const ids=new Map(),explicitInputs=new Set(),explicitOutputs=new Set(),pendingLinks=[];
+ const add=(rid,t,x,y,label)=>{if(!rid)throw new Error('Recipe node is missing an id');if(ids.has(rid))throw new Error(`Duplicate recipe node id: ${rid}`);const n=makeNode(t,Number(x)||0,Number(y)||0,true);if(label)n.name=label;ids.set(rid,n);return n};
+ for(const c of commands){const a=c.args||[];
+  if(['MODE','GRAPH'].includes(c.cmd))continue;
+  if(c.cmd==='NODE'){add(a[0],resolveRecipeTemplate(a[1]),a[2],a[3],a[4]);continue}
+  if(c.cmd==='SCALAR'){const n=add(a[0],resolveRecipeTemplate('Scalar Parameter'),a[3],a[4],a[1]);setPropLine(n,'ParameterName',unrealString(a[1]||'Scalar'));setPropLine(n,'DefaultValue',Number(a[2]||0).toFixed(6));setPropLine(n,'ExpressionGUID',guid());continue}
+  if(c.cmd==='VECTOR'){const n=add(a[0],resolveRecipeTemplate('Vector Parameter'),a[3],a[4],a[1]),v=parseNums(a[2],4);setPropLine(n,'ParameterName',unrealString(a[1]||'Vector'));setPropLine(n,'DefaultValue',`(R=${v[0].toFixed(6)},G=${v[1].toFixed(6)},B=${v[2].toFixed(6)},A=${v[3].toFixed(6)})`);setPropLine(n,'ExpressionGUID',guid());continue}
+  if(c.cmd==='CONST'){const n=add(a[0],resolveRecipeTemplate('Constant'),a[2],a[3]);setPropLine(n,'R',Number(a[1]||0).toFixed(6));continue}
+  if(/^VEC[234]$/.test(c.cmd)){const k=Number(c.cmd.slice(3)),n=add(a[0],resolveRecipeTemplate('Constant '+k),a[2],a[3]),v=parseNums(a[1],k);if(k===2){setPropLine(n,'R',v[0].toFixed(6));setPropLine(n,'G',v[1].toFixed(6))}else setPropLine(n,'Constant',`(R=${v[0].toFixed(6)},G=${v[1].toFixed(6)},B=${v[2].toFixed(6)},A=${(v[3]??0).toFixed(6)})`);continue}
+  if(c.cmd==='CUSTOM'){const n=add(a[0],resolveRecipeTemplate('Custom HLSL'),a[3],a[4],a[1]||'Custom HLSL');n.inputs=[];n.outputs=[{id:uid('p'),name:'Output',pinGuid:guid(),index:0}];explicitInputs.add(a[0]);setPropLine(n,'Description',unrealString(a[1]||'Custom'));setPropLine(n,'OutputType',a[2]||'CMOT_Float3');continue}
+  if(c.cmd==='INPUT'){const n=ids.get(a[0]);if(!n)throw new Error(`INPUT references unknown node: ${a[0]}`);if(!explicitInputs.has(a[0])){n.inputs=[];explicitInputs.add(a[0])}const name=a[1]||`Input${n.inputs.length}`,prop=a[2]||(n.custom?'custom:'+name:name);n.inputs.push({id:uid('p'),name,prop,pinGuid:guid()});continue}
+  if(c.cmd==='OUTPUT'){const n=ids.get(a[0]);if(!n)throw new Error(`OUTPUT references unknown node: ${a[0]}`);if(!explicitOutputs.has(a[0])){n.outputs=[];explicitOutputs.add(a[0])}n.outputs.push({id:uid('p'),name:a[1]||`Output${n.outputs.length}`,index:Number(a[2]??n.outputs.length)||0,pinGuid:guid()});continue}
+  if(c.cmd==='PROPS'){const n=ids.get(c.id);if(!n)throw new Error(`PROPS references unknown node: ${c.id}`);c.body.split(/\r?\n/).forEach(line=>{const t=line.trim();if(!t)return;const m=t.match(/^([A-Za-z_]\w*)=(.*)$/);if(m)setPropLine(n,m[1],m[2]);else n.props=[n.props,t].filter(Boolean).join('\n')});continue}
+  if(c.cmd==='CODE'){const n=ids.get(c.id);if(!n)throw new Error(`CODE references unknown node: ${c.id}`);if(!n.custom)throw new Error(`CODE target is not a Custom HLSL node: ${c.id}`);n.code=c.body;continue}
+  if(c.cmd==='LINK'){pendingLinks.push(c);continue}
+  throw new Error(`Unknown MTRL//SCRIPT command${c.line?' on line '+c.line:''}: ${c.cmd}`);
+ }
+ for(const c of pendingLinks){const a=c.args,src=ids.get(a[0]),dst=ids.get(a[2]);if(!src)throw new Error(`LINK source node not found: ${a[0]}`);if(!dst)throw new Error(`LINK target node not found: ${a[2]}`);const op=recipePin(src,a[1],'out'),ip=recipePin(dst,a[3],'in');if(!op)throw new Error(`Output '${a[1]}' not found on ${a[0]}`);if(!ip)throw new Error(`Input '${a[3]}' not found on ${a[2]}`);graph.edges=graph.edges.filter(e=>!(e.toNode===dst.id&&e.toPin===ip.id));graph.edges.push({id:uid('e'),fromNode:src.id,fromPin:op.id,toNode:dst.id,toPin:ip.id})}
+ selected=graph.nodes[graph.nodes.length-1]?.id||null;selection=selected?new Set([selected]):new Set();render();frameAll();saveLocal();toast(`AI built ${ids.size} nodes`);status(`${graphLabel}: ${ids.size} nodes built`,'good');return ids.size;
+}
+
+function frameAll(){if(!graph.nodes.length){view={x:180,y:120,scale:1};applyView();return}const xs=graph.nodes.map(n=>n.x),ys=graph.nodes.map(n=>n.y);const minX=Math.min(...xs),maxX=Math.max(...xs)+190,minY=Math.min(...ys),maxY=Math.max(...ys)+180;const r=viewport.getBoundingClientRect();const sc=Math.min(1.15,Math.max(.4,Math.min((r.width-100)/(maxX-minX||1),(r.height-100)/(maxY-minY||1))));view.scale=sc;view.x=50-minX*sc;view.y=50-minY*sc;applyView();renderWires();}
+function saveLocal(){try{localStorage.setItem('mtrlbridge.graph',JSON.stringify({graph,view,idSeq}))}catch(e){}}
+function loadLocal(){try{const d=JSON.parse(localStorage.getItem('mtrlbridge.graph'));if(d?.graph){graph=d.graph;view=d.view||view;idSeq=d.idSeq||100;selected=graph.nodes[0]?.id||null;selection=selected?new Set([selected]):new Set();return true}}catch(e){}return false}
+function loadSample(){graph={nodes:[],edges:[]};idSeq=1;const uv=makeNode(TEMPLATES.find(t=>t.name==='Texture Coordinate'),100,200);const time=makeNode(TEMPLATES.find(t=>t.name==='Time'),100,390);const speed=makeNode(TEMPLATES.find(t=>t.name==='Scalar Parameter'),350,390);speed.name='Speed';speed.props='DefaultValue=0.250000\nParameterName="Speed"\nExpressionGUID='+guid();const mul=makeNode(TEMPLATES.find(t=>t.name==='Multiply'),610,360);const custom=makeNode(TEMPLATES.find(t=>t.name==='Custom HLSL'),880,210);custom.name='UV Warp';custom.inputs=[{id:uid('p'),name:'UV',prop:'custom:UV',pinGuid:guid()},{id:uid('p'),name:'T',prop:'custom:T',pinGuid:guid()}];custom.code='float2 wobble = float2(sin((UV.y + T) * 6.28318), cos((UV.x + T) * 6.28318));\nreturn UV + wobble * 0.02;';custom.props='Description="UV Warp"\nOutputType=CMOT_Float2';graph.edges.push({id:uid('e'),fromNode:time.id,fromPin:time.outputs[0].id,toNode:mul.id,toPin:mul.inputs[0].id},{id:uid('e'),fromNode:speed.id,fromPin:speed.outputs[0].id,toNode:mul.id,toPin:mul.inputs[1].id},{id:uid('e'),fromNode:uv.id,fromPin:uv.outputs[0].id,toNode:custom.id,toPin:custom.inputs[0].id},{id:uid('e'),fromNode:mul.id,fromPin:mul.outputs[0].id,toNode:custom.id,toPin:custom.inputs[1].id});selected=custom.id;selection=new Set([custom.id]);render();frameAll();saveLocal();}
+
+const AI_NODE_HINTS={
+ 'MaterialExpressionCustom':'Arbitrary HLSL expression. Declare every named input with INPUT and code with CODE.',
+ 'MaterialExpressionPreviousFrameSwitch':'Selects current-frame versus previous-frame data; useful for correct motion vectors with animated/WPO materials.',
+ 'MaterialExpressionPerInstanceCustomData':'Reads per-instance custom primitive/instance data by index.',
+ 'MaterialExpressionRuntimeVirtualTextureSample':'Samples an assigned Runtime Virtual Texture; asset assignment and material domain settings still matter.',
+ 'MaterialExpressionSceneTexture':'Reads a selected scene texture; availability depends on material domain/blend path.',
+ 'MaterialExpressionDistanceToNearestSurface':'Global distance-field distance query; requires the relevant distance-field rendering support.',
+ 'MaterialExpressionDistanceFieldGradient':'Global distance-field gradient/direction query.',
+ 'MaterialExpressionMakeMaterialAttributes':'Builds a Material Attributes struct from individual channels.',
+ 'MaterialExpressionBreakMaterialAttributes':'Extracts channels from a Material Attributes struct.',
+ 'MaterialExpressionSetMaterialAttributes':'Overwrites selected fields of a Material Attributes struct.',
+ 'MaterialExpressionGetMaterialAttributes':'Extracts selected fields from a Material Attributes struct.'
+};
+function buildAIContext(){
+ const lines=[MTRL_PROTOCOL,'','MTRL//BRIDGE LIVE NODE CATALOG','Generated from this exact tool build. Use this catalog to know what can be spawned and how curated pins are named.','','AI RULES:',
+ '- Prefer entries marked CURATED because their visible inputs/outputs and baseline serialized properties are known to this tool.',
+ '- EXTENDED entries are spawnable UE 5.4 expression classes, but their pins/properties are intentionally not guessed. If you need one, verify its UE 5.4 behavior/pins from Epic docs/source when web research is available, or have the user import one real node from Unreal and use INPUT/OUTPUT/PROPS to match it.',
+ '- Do not assume MTRL//SCRIPT itself teaches material theory. Reason from Unreal material knowledge; use this catalog as the capability/pin contract.',
+ '- Native nodes are preferred. Custom HLSL is valid when it makes the requested effect substantially cleaner or requires functionality awkward in stock nodes.',''];
+ TEMPLATES.forEach(t=>{const ins=(t.inputs||[]).map(p=>`${p[0]}=>${p[1]}`).join(', ')||'none',outs=(t.outputs||[]).join(', ')||'none',kind=t.extended?'EXTENDED':'CURATED',hint=AI_NODE_HINTS[t.class]?` | NOTE: ${AI_NODE_HINTS[t.class]}`:'';lines.push(`[${kind}] ${t.name} | ${t.class} | category=${t.cat} | inputs=${ins} | outputs=${outs}${hint}`);if(!t.extended&&t.props)lines.push(`  defaults: ${String(t.props).replace(/\n/g,' ; ')}`)});
+ return lines.join('\n');
+}
+
+function showModal(mode,text=''){
+ const cfg={
+  import:['PASTE UNREAL MATERIAL NODES','Import graph','Copy nodes in the UE Material Editor (Ctrl+C), paste here, then Import.'],
+  export:['UNREAL CLIPBOARD TEXT','Copy text','Paste this directly into an open Unreal Material graph.'],
+  recipe:['AI BUILD · MTRL//SCRIPT','Build graph','Paste a MTRL//SCRIPT recipe from chat. You can also drop a .mtrl/.txt recipe onto the app.'],
+  protocol:['MTRL//SCRIPT v1 PROTOCOL','Copy protocol','Syntax/contract only. Use AI Context when you want the assistant to know this build’s full palette and pins.'],
+  context:['MTRL//BRIDGE AI CONTEXT','Copy AI context','Protocol + this exact build’s live node catalog, curated pins/defaults, and rules for extended nodes.']
+ }[mode]||['TEXT','Close',''];
+ const m=$('#textModal');m.classList.add('show');$('#modalText').value=text;$('#modalTitle').textContent=cfg[0];$('#modalAction').textContent=cfg[1];$('#modalHint').textContent=cfg[2];m.dataset.mode=mode;setTimeout(()=>$('#modalText').focus(),20)
+}
+$('#closeModal').onclick=()=>$('#textModal').classList.remove('show');$('#textModal').onclick=e=>{if(e.target===$('#textModal'))$('#textModal').classList.remove('show')};
+$('#modalAction').onclick=async()=>{const mode=$('#textModal').dataset.mode;try{if(mode==='import'){importUE($('#modalText').value);$('#textModal').classList.remove('show')}else if(mode==='recipe'){importRecipe($('#modalText').value);$('#textModal').classList.remove('show')}else await copyText($('#modalText').value)}catch(e){toast(e.message);status(e.message,'warn')}};
+async function copyText(t){try{await navigator.clipboard.writeText(t);toast('Copied to clipboard');status('Clipboard ready','good')}catch(e){const ta=$('#modalText');if(ta){ta.select();document.execCommand('copy');toast('Copied')}else showModal('export',t)}}
+$('#copyBtn').onclick=async()=>{if(!graph.nodes.length)return toast('Add at least one node');const t=exportUE();await copyText(t);status(`Copied all ${graph.nodes.length} nodes — paste in Material Editor`,'good')};
+$('#copySelectedBtn').onclick=async()=>{if(!selection.size)return toast('Select one or more nodes first');const t=exportUE(selection);await copyText(t);status(`Copied ${selection.size} selected node${selection.size===1?'':'s'} — internal links only`,'good')};
+$('#previewBtn').onclick=()=>showModal('export',exportUE());
+$('#importBtn').onclick=async()=>{try{const t=await navigator.clipboard.readText();if(t&&t.includes('MaterialGraphNode')){importUE(t);return}}catch(e){}showModal('import','')};
+$('#aiBuildBtn').onclick=async()=>{try{const t=await navigator.clipboard.readText();if(t&&/MTRL(?:\/\/)?_?SCRIPT\s+1/i.test(t)){importRecipe(t);return}}catch(e){}showModal('recipe','')};
+$('#protocolBtn').onclick=()=>showModal('protocol',MTRL_PROTOCOL);
+$('#aiContextBtn').onclick=()=>showModal('context',buildAIContext());
+$('#recipeFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{importRecipe(await f.text())}catch(err){toast(err.message);status(err.message,'warn')}e.target.value=''};
+window.addEventListener('dragover',e=>{if(e.dataTransfer?.types?.includes('Files'))e.preventDefault()});
+window.addEventListener('drop',async e=>{const f=e.dataTransfer?.files?.[0];if(!f)return;e.preventDefault();try{const t=await f.text();if(/MTRL(?:\/\/)?_?SCRIPT\s+1/i.test(t))importRecipe(t);else if(t.includes('MaterialGraphNode'))importUE(t);else throw new Error('Dropped file is not a MTRL//SCRIPT recipe or Unreal graph text')}catch(err){toast(err.message);status(err.message,'warn')}});
+$('#newBtn').onclick=()=>{graph={nodes:[],edges:[]};selected=null;selection=new Set();view={x:180,y:120,scale:1};render();saveLocal();status('New graph')};
+$('#frameBtn').onclick=frameAll;$('#sampleBtn').onclick=loadSample;$('#search').oninput=e=>renderPalette(e.target.value);
+renderPalette();if(!loadLocal())loadSample();else render();
+</script>
+</body>
+</html>
