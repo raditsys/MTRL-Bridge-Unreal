@@ -1,0 +1,28 @@
+MTRL_SCRIPT 1
+GRAPH | Fresnel Energy Pulse
+MODE | replace
+NODE | time | Time | 80 | 420
+SCALAR | speed | Pulse Speed | 1.5 | 80 | 540
+NODE | timeMul | Multiply | 320 | 450
+NODE | sine | Sine | 560 | 450
+CONST | half | 0.5 | 560 | 590
+NODE | amp | Multiply | 800 | 470
+NODE | bias | Add | 1030 | 470
+NODE | fresnel | Fresnel | 80 | 150
+VECTOR | color | Edge Color | 0.15,0.85,1.0,1.0 | 800 | 150
+NODE | edgeColor | Multiply | 1060 | 170
+NODE | finalPulse | Multiply | 1310 | 260
+NODE | material | Make Material Attributes | 1580 | 260 | Material Output
+LINK | time | Output | timeMul | A
+LINK | speed | Output | timeMul | B
+LINK | timeMul | Output | sine | Input
+LINK | sine | Output | amp | A
+LINK | half | Output | amp | B
+LINK | amp | Output | bias | A
+LINK | half | Output | bias | B
+LINK | fresnel | Output | edgeColor | A
+LINK | color | Output | edgeColor | B
+LINK | edgeColor | Output | finalPulse | A
+LINK | bias | Output | finalPulse | B
+LINK | finalPulse | Output | material | Emissive Color
+END_SCRIPT

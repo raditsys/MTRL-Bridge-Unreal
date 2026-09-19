@@ -1,142 +1,109 @@
-
-## V5.5 — lean AI context + safer links
-
-- MTRL//SCRIPT protocol is intentionally tiny (~1.2 KB).
-- AI Context is token-optimized: curated node pins/property keys + short Material Function uses, while keeping all packaged functions discoverable.
-- AI Build auto-fixes a bad pin name when the node side has exactly one pin.
-- AI Build also accepts a unique partial pin-name match. Ambiguous multi-pin mistakes still fail instead of guessing.
-- Build status reports how many pin names were auto-fixed, and hard errors list the available pins.
 # MTRL//BRIDGE
 
-A self-contained browser tool for authoring and converting Unreal Engine 5.4.x Material Editor node graphs into Unreal's text clipboard format.
+**MTRL//BRIDGE** is a free, self-contained browser tool for building Unreal Engine 5.4.x material graphs, generating Unreal Material Editor clipboard text, and turning compact AI-generated `MTRL_SCRIPT 1` recipes into editable node graphs.
 
-## Run
+It is designed for technical artists who want a fast bridge between an LLM, a visual material graph, and Unreal's Material Editor without requiring a custom Unreal plugin for the core workflow.
 
-The simplest option is to double-click `index.html`. Clipboard permissions are more reliable on localhost, so for the best experience run:
+> Unofficial community tool. Not affiliated with or endorsed by Epic Games.
 
-```bash
-python -m http.server 8080
-```
+## Quick start
 
-Then open `http://localhost:8080` from this folder.
+MTRL//BRIDGE is primarily designed as an **AI → material graph → Unreal** workflow. On first launch, the compact **Start Here** panel walks through it, and the permanently glowing **Help / Start Here** button always reopens the guide.
 
-## Workflow
+1. Download `MTRL_AI_CONTEXT.md` and `MTRL_SCRIPT_PROTOCOL.md` from the Start Here panel.
+2. Attach both files to your AI and use the included starter prompt to request a material.
+3. Copy the returned `MTRL_SCRIPT 1` recipe and paste it into **AI Build**.
+4. Optionally preview/edit the resulting graph in MTRL//BRIDGE.
+5. Click **Copy All** or **Copy Selected**, open an Unreal Engine 5.4.x Material graph, and press **Ctrl+V**.
 
-1. Add nodes from the left palette.
-2. Grab and move a node from almost anywhere on its box. Only pins and actual form controls are excluded from dragging.
-3. Drag from output diamonds to input diamonds to connect nodes.
-4. Select a node to edit its Unreal class and serialized properties.
-5. Use **Custom HLSL** for a `MaterialExpressionCustom`; add/remove inputs in the inspector and write HLSL in the Code box.
-6. Press **Copy for Unreal**, switch to an open Material Editor graph in UE 5.4.x, and paste with Ctrl+V.
-7. To bring an existing graph into the browser, copy nodes in Unreal and use **Paste / Import**.
+You can also build graphs manually with right-click search and pin wiring. The app autosaves its workspace to browser `localStorage`. For more reliable clipboard permissions, serve the folder locally with `python -m http.server 8080`.
 
+## AI workflow
 
-## Unreal-style right-click search
+MTRL//BRIDGE includes a compact AI protocol so ChatGPT or another capable model can generate material graphs for you.
 
-The graph now has a Material Editor-style spawn menu:
+Give the model these two files:
 
-- **Right-click empty graph space** to open the node/function search at the mouse cursor.
-- Typing filters progressively and focuses the closest matches.
-- **Up/Down** changes the highlighted result, **Enter** spawns it, and **Escape** closes the menu.
-- Drag a wire from an input/output pin and release it on empty graph space to open the same search in **auto-connect** mode. The chosen node is spawned at the drop point and its first compatible-side pin is connected automatically.
-- Middle mouse or **Alt + left drag** pans the graph so right-click is reserved for the Unreal-style context menu.
+- `MTRL_AI_CONTEXT.md` — exact supported node/function names, pins, and concise usage hints.
+- `MTRL_SCRIPT_PROTOCOL.md` — the lightweight recipe syntax.
 
-## UE 5.4 node coverage
+Then ask for a complete `MTRL_SCRIPT 1` recipe. Paste the result into **AI Build**.
 
-This build exposes 291 expression entries: 159 curated templates with useful pins/default properties plus 132 additional UE 5.4 expression classes in **UE 5.4 / Extended**.
-
-The curated set now covers the main Math, Vector/Color, Constant, Parameter, Texture, Coordinate, Utility, Scene, Particle, Distance Field, Switch, Material Attribute, Runtime Virtual Texture, and Material Function expressions.
-
-The extended list exists so obscure/specialized 5.4 expressions are not simply missing. These spawn as editable raw expressions because many specialized nodes have version-specific, asset-dependent, dynamic, or array-based pins. For maximum fidelity with one of those nodes, copy a real instance from UE, import it into MTRL//BRIDGE, then edit/duplicate it there.
-
-
-## All Engine Material Functions
-
-Material Functions are assets, not ordinary `MaterialExpression` classes. A correct Function Call node needs the function asset path plus the stable IDs of its Function Input and Function Output nodes. Because those IDs belong to the exact Engine assets installed with your UE 5.4.x build, MTRL//BRIDGE uses a one-time catalog sync rather than shipping guessed/stale function metadata.
-
-1. Enable Unreal's **Python Editor Script Plugin** if needed.
-2. Run `UE54_EXPORT_MTRL_FUNCTIONS.py` inside the Unreal Editor.
-3. The script scans `/Engine/Functions` recursively and writes `Saved/MTRL_Bridge/ue54_material_functions.json` inside the current project.
-4. In MTRL//BRIDGE click **Import functions** and select that JSON file. You can also drag the JSON onto the browser tool.
-5. The catalog is stored in browser `localStorage`, so the sync normally only needs to be repeated when you change/update the engine install.
-
-After sync, every exported engine Material Function appears in the left palette and the right-click search as a **FUNC** node. Function Call export writes `MaterialFunction`, `FunctionInputs(n)`, `FunctionOutputs(n)`, and the synced input/output GUIDs. Imported Unreal Function Call nodes are also recognized and round-trip as first-class Function nodes.
-
-The AI handoff supports functions with:
+A good generic prompt is:
 
 ```text
-FUNCTION | id | Function Name Or /Engine/... asset path | x | y | optional display name
+Read MTRL_AI_CONTEXT.md and MTRL_SCRIPT_PROTOCOL.md and treat them as authoritative.
+Create a complete MTRL_SCRIPT 1 recipe for: [describe the material].
+Validate node/function names and LINK pins against the context.
+Return the finished recipe with minimal extra text.
 ```
 
-`AI Context` includes the currently synced Material Function catalog, so a future chat can choose actual functions and exact pin names instead of guessing.
+See [docs/AI_WORKFLOW.md](docs/AI_WORKFLOW.md) for the full workflow and an optional `use mtrl` shortcut for ChatGPT.
 
-## Raw Expression
+## Main features
 
-Raw Expression lets you specify any `MaterialExpression...` class, arbitrary serialized property lines, pins, and the expression-property name attached to each input. Imported Unreal clipboard text also keeps unknown expression property lines wherever possible.
+- Visual UE-style material node graph in a single HTML file.
+- Unreal clipboard import and export.
+- Copy the full graph or only selected nodes.
+- Right-click node/function search and wire-drop auto-connect.
+- Multi-graph tabs with add, close, rename, and drag reorder.
+- Custom HLSL nodes.
+- Compact `MTRL//SCRIPT v1` AI Build workflow.
+- Packaged UE 5.4.x Material Function catalog with 465 functions.
+- Optional custom Material Function catalogs exported from your own UE install.
+- Live animated WebGL preview on a sphere or plane.
+- Browser-local autosave; no backend required.
 
-## Custom nodes
+## Live preview
 
-Custom HLSL nodes export `Code`, `OutputType`, `Description`, and indexed `Inputs(n)` entries. Input names in the browser become the HLSL identifiers used by Unreal's Custom Material Expression.
+The preview evaluates the active graph through **Make Material Attributes** and approximates common channels including Base Color, Metallic, Specular, Roughness, Emissive, Opacity, Opacity Mask, tangent-space Normal, World Position Offset, and Ambient Occlusion.
 
-## Important note
+The preview is intentionally **not** Unreal's material compiler. It translates a useful subset of nodes and Custom HLSL to WebGL for fast visual feedback. Unsupported UE-only features can fail or fall back while Unreal clipboard export remains usable. Use **Copy error** in the preview header to copy the generated shader and full compiler report when debugging.
 
-Unreal's clipboard representation is editor serialization rather than a formally documented interchange standard. Complex/rare nodes can contain editor-version-specific properties, so the safest exact workflow for those nodes is: copy a real node from UE → import it → modify/duplicate it in MTRL//BRIDGE → copy back.
+## Material Functions
 
-## AI Build / MTRL//SCRIPT
+The packaged catalog is enabled by default. To use function metadata from your own UE 5.4.x installation, run:
 
-This build includes **MTRL//SCRIPT v1**, a compact chat-to-graph protocol. Click **AI Build** and paste a recipe generated in chat; MTRL//BRIDGE creates the nodes, pins, parameters, Custom HLSL, positions, serialized properties, and connections. If the recipe is already on the clipboard, clicking AI Build imports it immediately. Recipe files can also be dragged onto the app.
+`tools/UE54_EXPORT_MTRL_FUNCTIONS.py`
 
-Click **AI protocol** inside the graph view to see/copy the built-in contract. The same specification is included as `MTRL_SCRIPT_PROTOCOL.md`, with `example_ai_recipe.mtrl` as a working example.
+inside the Unreal Editor with the Python Editor Script Plugin enabled, then import the generated JSON through **More → Import custom functions…**.
 
-## Multi-selection / partial Unreal copy
+See [docs/MATERIAL_FUNCTIONS.md](docs/MATERIAL_FUNCTIONS.md).
 
-The graph now supports Unreal-style chunk editing:
+## Documentation
 
-- Left-drag empty canvas to marquee/box select nodes.
-- Hold **Shift** to add to the selection. **Ctrl/Cmd** also supports additive/toggle selection.
-- Drag any selected node to move the entire selected group.
-- **Ctrl/Cmd+A** selects the whole graph.
-- Delete/Backspace removes all selected nodes.
-- **Copy Selected** exports only highlighted nodes to Unreal. Connections are preserved only when both endpoints are selected; links to unselected nodes are omitted.
-- **Copy All** exports the complete graph.
+- [Quick Start](docs/QUICK_START.md)
+- [AI Workflow](docs/AI_WORKFLOW.md)
+- [Material Functions](docs/MATERIAL_FUNCTIONS.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [MTRL//SCRIPT Protocol](MTRL_SCRIPT_PROTOCOL.md)
+- [AI Context](MTRL_AI_CONTEXT.md)
 
-## Giving a fresh AI the right context
+There is also a **Help** button inside the app with the essential workflow and links to these docs.
 
-`AI Protocol` is the compact MTRL//SCRIPT grammar. It tells an AI how to express a graph, but it does not by itself enumerate or explain every node available in this specific build.
+## Browser data
 
-Use **AI Context** for a new chat when you want maximum reliability. It contains the protocol plus a generated catalog of every node in the current build, curated pin/property metadata, and rules for handling extended/raw UE 5.4 expression classes. Common material nodes generally do not need long explanations; obscure/version-specific nodes should be verified against UE 5.4 documentation/source if the assistant has research access, rather than guessed.
+MTRL//BRIDGE stores workspace state, app settings, and an optional custom Material Function catalog under `mtrlbridge.*` keys in browser `localStorage`. **More → Reset local data…** clears only those keys. The packaged function catalog is embedded in `index.html` and is not removed.
 
-## UE 5.4 Material Function catalog — v3 GUID export
+## Compatibility and limitations
 
-UE 5.4's Python wrapper exposes Material Function interface names/types but not the stable `Id` FGuid fields used by Material Function Call pins. `UE54_EXPORT_MTRL_FUNCTIONS.py` v3 works around this by using `ObjectExporterT3D` to serialize each Function Input/Output with Unreal's own text serializer, then reads the hidden `Id=` field from that text.
+- Target: Unreal Engine **5.4.x**.
+- Unreal clipboard text is editor serialization, not a formally documented interchange format. Rare/version-specific expressions may require importing a real node copied from Unreal first.
+- The live preview is approximate and does not guarantee parity with Unreal rendering.
+- Texture assets referenced by Unreal are not available to the browser renderer; preview adapters may use placeholders.
+- Two pins in the packaged engine-function export do not expose stable GUIDs. MTRL//BRIDGE blocks unsafe function export rather than inventing IDs.
 
-A successful catalog should report `exporter_version: 3`, `missing_input_guids: 0`, and `missing_output_guids: 0`. MTRL//BRIDGE no longer invents random IDs when a catalog is incomplete; it warns on import and blocks Unreal export for Function Call nodes whose exact GUIDs are missing.
+## Repository layout
 
-## Packaged vs custom Material Functions
+```text
+index.html                    Browser application
+MTRL_AI_CONTEXT.md            Compact AI-facing node/function catalog
+MTRL_SCRIPT_PROTOCOL.md       MTRL//SCRIPT grammar
+examples/                     Example recipes
+tools/                        Optional Unreal-side utilities
+docs/                         User documentation
+```
 
-This build contains a packaged UE 5.4.x engine Material Function catalog (465 functions). Leave **Packaged functions ON** to use it. Turn it **OFF** to use the last catalog loaded through **Import custom**. Importing a custom catalog automatically switches packaged mode off. The packaged catalog is built into `index.html`, so it is available even after clearing browser storage.
+## License
 
-**Clear local storage** removes MTRL//BRIDGE's saved graph, custom function catalog, and saved app settings, then reloads the app. It only removes keys prefixed with `mtrlbridge.` and does not remove the packaged catalog.
-
-## Multi-graph tabs
-
-MTRL//BRIDGE can keep multiple independent material graphs in one browser workspace. Use `+` to add a tab, `×` to close it, double-click a tab name to rename it, and drag tabs to reorder them. Import, AI Build, UE Text, Copy All, Copy Selected, Frame All, and Load Sample act on the active tab. The workspace is autosaved under `mtrlbridge.workspace`; older single-graph saves are migrated automatically.
-
-## Live material preview
-
-The upper-right preview renders the active graph on a sphere or plane and updates animated graphs continuously. The preview looks for the latest (or selected) **Make Material Attributes** node and evaluates these channels: Base Color, Metallic, Specular, Roughness, Emissive Color, Opacity, Opacity Mask, Normal, World Position Offset, and Ambient Occlusion. Normal is treated as tangent-space in the preview. `Time` updates every frame and a Pause/Play control is provided.
-
-The preview is intentionally an approximation, not Unreal Engine's material compiler. The browser converts a practical subset of native MTRL nodes and simple Custom HLSL to a WebGL shader. Common math, parameters, UVs, panners/rotators, procedural texture placeholders, Fresnel, SphereMask, Noise, and several common Material Functions have preview adapters. Unsupported Unreal-only expressions/functions fall back instead of blocking graph authoring; UE clipboard export remains independent of preview support.
-
-### V5.1 preview compatibility
-Custom HLSL preview translation now maps HLSL `atan2` and `clamp` through GLSL ES-safe overload helpers, including scalar/vector mixed arguments and integer literals. It also maps `ddx`, `ddy`, `rsqrt`, and strips HLSL `f` numeric suffixes. Unreal clipboard export is unchanged.
-
-
-## V5.3 preview fix
-- GLSL scalar literals are now emitted as floats (`0.0`, `1.0`) instead of integers when used by the preview compiler. This fixes WebGL `clamp` overload failures caused by default material channel values.
-
-
-## V5.4 preview fixes
-- Custom HLSL preview strips HLSL compiler attributes such as `[unroll]`/`[loop]`.
-- Common C-style casts such as `(float)j` are converted to GLSL constructor casts.
-- Live preview header includes **Copy error**, which copies the full compiler log, graph summary, warnings, and numbered generated vertex/fragment shader source.
+Choose and add a license before publishing if you want to grant explicit reuse/modification rights. No license is included in this prepared package so that the repository owner can choose the terms.

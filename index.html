@@ -28,29 +28,33 @@ footer{border-top:1px solid var(--line);background:#080909;display:flex;align-it
 .context-menu{position:fixed;width:360px;max-height:min(620px,74vh);display:none;grid-template-rows:auto 1fr;background:#090b0b;border:1px solid #3a4240;box-shadow:0 24px 70px rgba(0,0,0,.64);z-index:180}.context-menu.show{display:grid}.context-head{padding:10px;border-bottom:1px solid var(--line);background:#0d1010}.context-title{font-size:9px;color:#69736f;letter-spacing:.15em;text-transform:uppercase;margin-bottom:7px}.context-search{width:100%;background:#050707;border:1px solid #3b4441;padding:10px 11px;outline:none;font-size:12px}.context-search:focus{border-color:var(--acid)}.context-results{overflow:auto;padding:6px}.context-group{padding:7px 8px 4px;color:#56615c;font-size:8px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}.context-item{width:100%;border:0;background:transparent;color:#c3cbc7;display:grid;grid-template-columns:9px 1fr auto;align-items:center;gap:9px;text-align:left;padding:8px 9px}.context-item:hover,.context-item.active{background:#171b1a;color:white}.context-item .ci-dot{width:7px;height:7px;background:var(--cyan)}.context-item.function .ci-dot{background:var(--orange)}.context-item.extended .ci-dot{background:var(--pink)}.context-item .ci-kind{font-size:8px;color:#59635f;letter-spacing:.1em}.context-empty{padding:24px 12px;color:#59635f;text-align:center}.fn-badge{display:inline-block;border:1px solid #5e3e26;color:#ffad77;background:#17100c;padding:2px 5px;font-size:8px;letter-spacing:.1em;text-transform:uppercase}
 @media(max-width:950px){.workspace{grid-template-columns:190px 1fr 270px}.brand{min-width:190px}.node{width:170px}}
 
-/* Multi-graph tabs */
 .graph-tabs{display:flex;align-items:center;gap:4px;padding:0 10px;border-bottom:1px solid var(--line);background:#090b0b;overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:thin;z-index:18}
 .graph-tab{height:27px;min-width:86px;max-width:210px;display:flex;align-items:center;gap:7px;padding:0 6px 0 10px;border:1px solid #282e2c;background:#0e1110;color:#7f8985;cursor:pointer;user-select:none;flex:none}
 .graph-tab:hover{color:#d9dfdc;border-color:#444c49}.graph-tab.active{color:#fff;border-color:#62702f;background:#171b10;box-shadow:inset 0 -2px 0 var(--acid)}
 .graph-tab.dragging{opacity:.42}.graph-tab-name{overflow:hidden;text-overflow:ellipsis;font-size:10px;font-weight:800;letter-spacing:.04em}.graph-tab-close{border:0;background:transparent;color:#59635f;padding:1px 4px;font-size:14px;line-height:1}.graph-tab-close:hover{color:#ff8d8d}.graph-tab-add{width:28px;height:27px;flex:none;border:1px dashed #3c4441;background:#0b0d0d;color:#87918d;font-weight:900}.graph-tab-add:hover{color:var(--acid);border-color:#68752f}
-/* Right preview + inspector */
 .right-panel{min-height:0;background:var(--panel);border-left:1px solid var(--line);display:grid;grid-template-rows:258px minmax(0,1fr);position:relative;z-index:10}.right-panel .inspector{border-left:0;overflow:auto;min-height:0;border-top:1px solid var(--line)}
 .preview-pane{min-height:0;background:#080a0a;display:grid;grid-template-rows:32px 1fr 28px;position:relative}.preview-head{display:flex;align-items:center;gap:5px;padding:0 7px;border-bottom:1px solid var(--line);background:#0b0d0d}.preview-title{font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:#89938e;margin-right:auto}.preview-toggle{border:1px solid #303735;background:#101313;color:#727d78;padding:4px 7px;font-size:9px;text-transform:uppercase;font-weight:800}.preview-toggle:hover,.preview-toggle.active{color:#fff;border-color:#61702e;background:#171c10}.preview-toggle.active{color:var(--acid)}
 .preview-canvas-wrap{position:relative;min-height:0;background:radial-gradient(circle at 50% 45%,#202626 0,#0d1010 54%,#070808 100%);overflow:hidden}.preview-canvas{display:block;width:100%;height:100%}.preview-overlay{position:absolute;left:7px;bottom:6px;right:7px;pointer-events:none;display:flex;justify-content:space-between;gap:8px;font:8px ui-monospace,SFMono-Regular,Consolas,monospace;color:#707a76;text-shadow:0 1px 2px #000}.preview-status{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.preview-time{flex:none;color:#85918b}.preview-channels{display:flex;align-items:center;gap:3px;padding:0 6px;border-top:1px solid var(--line);overflow:hidden}.preview-chip{font:8px ui-monospace,SFMono-Regular,Consolas,monospace;padding:3px 4px;border:1px solid #272d2b;color:#4f5955}.preview-chip.on{color:#b8c2bd;border-color:#4a5550}.preview-chip.anim{color:var(--pink);border-color:#6a3857}.preview-help{position:absolute;top:38px;right:7px;color:#4f5955;font-size:8px;pointer-events:none}
+
+
+.tools-menu{position:relative}.tools-menu>summary{list-style:none;cursor:pointer;user-select:none}.tools-menu>summary::-webkit-details-marker{display:none}.tools-menu[open]>summary{color:#fff;border-color:#59605f;background:#171a1a}.tools-popover{position:absolute;right:0;top:34px;width:210px;padding:6px;background:#0b0e0d;border:1px solid #343c39;box-shadow:0 18px 54px rgba(0,0,0,.58);z-index:80}.tools-item{display:block;width:100%;border:0;background:transparent;color:#aeb8b3;padding:9px 10px;text-align:left;font-size:10px}.tools-item:hover{background:#171b1a;color:#fff}.tools-divider{height:1px;background:var(--line);margin:5px 3px}.tools-item.danger-item{color:#d98a8a}
+#helpBtn{position:relative;padding:9px 15px;font-size:10.5px;border-color:#4cb7a8;color:#8affee;background:#0d1917;box-shadow:0 0 8px rgba(85,245,221,.24),0 0 18px rgba(85,245,221,.10);animation:helpGlow 2.1s ease-in-out infinite}#helpBtn:hover{border-color:var(--cyan);color:#fff;background:#10231f;box-shadow:0 0 12px rgba(85,245,221,.48),0 0 28px rgba(85,245,221,.22)}#helpBtn:after{content:"";position:absolute;inset:-4px;border:1px solid rgba(85,245,221,.20);border-radius:6px;pointer-events:none;animation:helpRing 2.1s ease-in-out infinite}@keyframes helpGlow{0%,100%{box-shadow:0 0 7px rgba(85,245,221,.22),0 0 16px rgba(85,245,221,.09)}50%{box-shadow:0 0 13px rgba(85,245,221,.48),0 0 30px rgba(85,245,221,.22)}}@keyframes helpRing{0%,100%{opacity:.42;transform:scale(1)}50%{opacity:.95;transform:scale(1.035)}}
+.help-box{width:min(790px,94vw);height:auto;max-height:88vh;grid-template-rows:44px minmax(0,1fr) 48px}.help-main{padding:18px 20px 19px;overflow:auto}.help-hero{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:14px}.help-hero h2{margin:0 0 5px;font-size:21px;letter-spacing:-.025em}.help-hero p{margin:0;max-width:570px;color:#91a09a;font-size:11px;line-height:1.5}.help-badge{border:1px solid #68752f;color:var(--acid);padding:6px 8px;font-size:9px;font-weight:900;letter-spacing:.12em;white-space:nowrap}.quick-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.quick-step{position:relative;background:#090c0b;border:1px solid #252c29;padding:11px 10px 10px 38px;min-height:74px}.quick-step .num{position:absolute;left:10px;top:10px;width:20px;height:20px;display:grid;place-items:center;border:1px solid #56615c;color:var(--acid);font:800 9px ui-monospace,SFMono-Regular,Consolas,monospace}.quick-step b{display:block;font-size:10px;letter-spacing:.055em;text-transform:uppercase;margin-bottom:4px}.quick-step span{display:block;color:#788680;font-size:9.5px;line-height:1.45}.ai-kit{background:linear-gradient(135deg,rgba(255,95,170,.055),rgba(85,245,221,.035));border:1px solid #3a3339;padding:12px;margin-bottom:10px}.ai-kit-head{display:flex;align-items:center;gap:10px;margin-bottom:9px}.ai-kit-head strong{font-size:11px;letter-spacing:.09em;text-transform:uppercase}.ai-kit-head span{color:#73807a;font-size:9px}.ai-file-row{display:grid;grid-template-columns:1fr 1fr;gap:7px}.ai-file{display:flex;align-items:center;justify-content:space-between;gap:8px;text-decoration:none;background:#0a0d0c;border:1px solid #30403c;padding:9px 10px;color:#c9d4cf}.ai-file:hover{border-color:var(--cyan);color:#fff;background:#0e1412}.ai-file .file-copy{min-width:0}.ai-file b{display:block;font:800 10px ui-monospace,SFMono-Regular,Consolas,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ai-file small{display:block;color:#68756f;font-size:8.5px;margin-top:2px}.ai-file .download-mark{color:var(--cyan);font-weight:900;font-size:13px}.ai-prompt{display:flex;align-items:center;gap:8px;margin-top:8px}.ai-prompt code{flex:1;min-width:0;background:#070909;border:1px solid #232b28;padding:8px 9px;color:#8ea49d;font:9px/1.35 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.help-bottom{display:flex;gap:8px;align-items:stretch}.help-shortcuts{flex:1;background:#090b0b;border-left:2px solid var(--acid);padding:9px 10px;color:#74807a;font-size:9px;line-height:1.5}.help-shortcuts b{color:#d7dfdb}.help-docs{display:flex;gap:5px;flex-wrap:wrap;align-content:flex-start;width:245px}.help-docs a{color:#86aaa4;text-decoration:none;border:1px solid #293735;padding:6px 7px;font-size:8.5px}.help-docs a:hover{color:#fff;border-color:var(--cyan)}.help-note{color:#68736e;font-size:9px}@media(max-width:760px){.quick-steps,.ai-file-row{grid-template-columns:1fr}.help-bottom{display:block}.help-docs{width:auto;margin-top:8px}.toolbar .pill{display:none}.brand{min-width:180px}.stage-label{display:none}}
 
 </style>
 </head>
 <body>
 <div id="app">
 <header>
-  <div class="brand"><div class="mark"></div><div><strong>MTRL//BRIDGE</strong><span>UE 5.4.x</span></div></div>
+  <div class="brand"><div class="mark"></div><div><strong>MTRL//BRIDGE</strong><span>UE 5.4.x · PUBLIC PREVIEW</span></div></div>
   <div class="toolbar">
     <button class="btn" id="newBtn">New</button>
     <button class="btn cyan" id="importBtn">Paste / Import</button>
     <button class="btn ai" id="aiBuildBtn">AI Build</button>
-    <button class="btn" id="previewBtn">UE Text</button>
+    <button class="btn" id="previewBtn" title="View the Unreal clipboard text for the active graph">UE Text</button>
     <button class="btn" id="copyBtn">Copy All</button>
     <button class="btn primary" id="copySelectedBtn">Copy Selected</button>
+    <button class="btn cyan" id="helpBtn" title="Start here — AI setup and quick workflow">Help / Start Here</button>
     <div class="spacer"></div>
     <div class="pill"><b id="nodeCount">0</b> nodes · <b id="edgeCount">0</b> links · <b id="selectedCount">0</b> selected</div>
   </div>
@@ -63,8 +67,19 @@ footer{border-top:1px solid var(--line);background:#080909;display:flex;align-it
     <div class="categories" id="palette"></div>
   </aside>
   <main id="stageWrap">
-    <div class="stage-label">Material graph / <b>right click search · wire-drop search · box select · drag group · wheel zoom · alt/middle pan</b></div>
-    <div class="stage-actions"><label class="fn-toggle" title="Use the Material Function catalog packaged with MTRL//BRIDGE. Turn off to use your last imported custom catalog instead."><input type="checkbox" id="packagedFunctionsToggle" checked><span id="packagedFunctionsLabel">Packaged functions</span></label><button class="mini" id="functionCatalogBtn" title="Import your own UE Material Function catalog">Import custom</button><button class="mini danger-mini" id="clearStorageBtn" title="Clear MTRL//BRIDGE graph, settings, and imported custom catalog from browser local storage">Clear local storage</button><button class="mini" id="aiContextBtn">AI context</button><button class="mini" id="protocolBtn">AI protocol</button><button class="mini" id="frameBtn">Frame all</button><button class="mini" id="sampleBtn">Load sample</button></div>
+    <div class="stage-label">Material graph / <b>right-click to add · drag pins to connect · box-select · wheel to zoom · alt/middle to pan</b></div>
+    <div class="stage-actions">
+      <label class="fn-toggle" title="Use the Material Function catalog packaged with MTRL//BRIDGE. Turn off to use your last imported custom catalog instead."><input type="checkbox" id="packagedFunctionsToggle" checked><span id="packagedFunctionsLabel">Packaged functions</span></label>
+      <button class="mini" id="frameBtn" title="Frame the active graph">Frame</button>
+      <details class="tools-menu" id="toolsMenu"><summary class="mini">More</summary><div class="tools-popover">
+        <button class="tools-item" id="functionCatalogBtn">Import custom functions…</button>
+        <button class="tools-item" id="aiContextBtn">View / copy AI context</button>
+        <button class="tools-item" id="protocolBtn">View / copy AI protocol</button>
+        <button class="tools-item" id="sampleBtn">Load sample graph</button>
+        <div class="tools-divider"></div>
+        <button class="tools-item danger-item" id="clearStorageBtn">Reset local data…</button>
+      </div></details>
+    </div>
     <div id="viewport"><div id="world"><svg id="wires"></svg><div id="nodes"></div></div><div id="marquee" class="marquee"></div></div>
   </main>
   <aside class="right-panel">
@@ -76,13 +91,37 @@ footer{border-top:1px solid var(--line);background:#080909;display:flex;align-it
     <div class="inspector" id="inspector"><div class="empty-inspector">Select a node to edit its Unreal expression properties.</div></div>
   </aside>
 </div>
-<footer><span>Browser → Unreal Material Editor clipboard bridge</span><span class="status" id="status">Ready</span></footer>
+<footer><span>Unofficial community tool · Browser → Unreal Material Editor clipboard bridge</span><span class="status" id="status">Ready</span></footer>
 </div>
 
 <div class="modal" id="textModal"><div class="modal-box">
   <div class="modal-head"><strong id="modalTitle">UNREAL CLIPBOARD TEXT</strong><div class="spacer"></div><button class="btn" id="closeModal">Close</button></div>
   <div class="modal-main"><textarea id="modalText" spellcheck="false"></textarea></div>
   <div class="modal-foot"><span id="modalHint" style="color:#69736f;font-size:10px"></span><div class="spacer"></div><button class="btn cyan" id="modalAction">Import</button></div>
+</div></div>
+<div class="modal" id="helpModal"><div class="modal-box help-box">
+  <div class="modal-head"><strong>START HERE · AI → MTRL//BRIDGE → UNREAL</strong><div class="spacer"></div><button class="btn" id="closeHelp">Close</button></div>
+  <div class="help-main">
+    <section class="help-hero"><div><h2>Ask your AI to build the material first.</h2><p>The main workflow is simple: give your AI MTRL's two instruction files, ask for a shader, paste the generated MTRL//SCRIPT into <strong>AI Build</strong>, then send the graph to Unreal.</p></div><span class="help-badge">UE 5.4.x</span></section>
+    <section class="ai-kit">
+      <div class="ai-kit-head"><strong>01 · Give your AI these 2 files + the prompt</strong><span>README is not needed. These two files are the authoritative MTRL specification.</span></div>
+      <div class="ai-file-row">
+        <a class="ai-file" href="MTRL_AI_CONTEXT.md" download><span class="file-copy"><b>MTRL_AI_CONTEXT.md</b><small>Nodes, pins, Material Functions and compact usage hints</small></span><span class="download-mark">↓</span></a>
+        <a class="ai-file" href="MTRL_SCRIPT_PROTOCOL.md" download><span class="file-copy"><b>MTRL_SCRIPT_PROTOCOL.md</b><small>Compact MTRL//SCRIPT syntax and rules</small></span><span class="download-mark">↓</span></a>
+      </div>
+      <div class="ai-prompt"><code id="starterPrompt">Read the attached MTRL_AI_CONTEXT.md and MTRL_SCRIPT_PROTOCOL.md as authoritative. Create a complete MTRL_SCRIPT 1 recipe for: [describe material]. Return only the recipe.</code><button class="btn ai" id="copyStarterPrompt">Copy starter prompt</button></div>
+    </section>
+    <div class="quick-steps">
+      <div class="quick-step"><span class="num">02</span><b>Generate</b><span>Attach both files to your AI, paste the starter prompt, replace <strong>[describe material]</strong>, and ask it to generate.</span></div>
+      <div class="quick-step"><span class="num">03</span><b>AI Build</b><span>Copy the returned <strong>MTRL_SCRIPT 1</strong>, click <strong>AI Build</strong> above, paste it, and build the graph.</span></div>
+      <div class="quick-step"><span class="num">04</span><b>Preview → Unreal</b><span>Preview with Make Material Attributes, then <strong>Copy All</strong> and Ctrl+V into the Unreal Material Editor.</span></div>
+    </div>
+    <div class="help-bottom">
+      <div class="help-shortcuts"><b>Optional manual editing:</b> Right-click add · drag diamonds connect · box-drag select · Delete remove · middle/Alt-drag pan · wheel zoom · tabs = multiple graphs.</div>
+      <div class="help-docs"><a href="docs/AI_WORKFLOW.md" target="_blank">AI Workflow</a><a href="docs/QUICK_START.md" target="_blank">Quick Start</a><a href="docs/TROUBLESHOOTING.md" target="_blank">Troubleshooting</a><a href="MTRL_AI_CONTEXT.md" target="_blank">View AI Context</a><a href="MTRL_SCRIPT_PROTOCOL.md" target="_blank">View Protocol</a></div>
+    </div>
+  </div>
+  <div class="modal-foot"><span class="help-note">Primary workflow: AI generates MTRL//SCRIPT → MTRL//BRIDGE builds it → Unreal receives it.</span><div class="spacer"></div><button class="btn primary" id="helpStart">Start with AI</button></div>
 </div></div>
 <input type="file" id="recipeFile" accept=".mtrl,.mtrlbridge,.txt,.json" style="display:none">
 <input type="file" id="functionCatalogFile" accept=".json,.mtrlfunctions" style="display:none">
@@ -100,7 +139,6 @@ function unary(cat,name,cls,prop='Input',props='',accent='acid'){return T(cat,na
 function binary(cat,name,cls,a='A',b='B',props='',accent='acid'){return T(cat,name,cls,[[a,a],[b,b]],['Output'],props,accent)}
 
 const CURATED_TEMPLATES = [
- // Math / scalar-vector operations
  T('Math','Add','Add',[['A','A'],['B','B']],['Output'],'ConstA=0.000000\nConstB=0.000000','acid'),
  T('Math','Multiply','Multiply',[['A','A'],['B','B']],['Output'],'ConstA=1.000000\nConstB=1.000000','acid'),
  T('Math','Subtract','Subtract',[['A','A'],['B','B']],['Output'],'ConstA=0.000000\nConstB=0.000000','acid'),
@@ -119,7 +157,6 @@ const CURATED_TEMPLATES = [
  unary('Math','DDX','DDX'), unary('Math','DDY','DDY'), unary('Math','Derive Normal Z','DeriveNormalZ'),
  T('Math','Constant Bias Scale','ConstantBiasScale',[['Input','Input']],['Output'],'Bias=1.000000\nScale=0.500000','acid'),
 
- // Vector / color
  T('Vectors','Append Vector','AppendVector',[['A','A'],['B','B']],['Output'],'','cyan'),
  T('Vectors','Append 3 Vector','Append3Vector',[['A','A'],['B','B'],['C','C']],['Output'],'','cyan'),
  T('Vectors','Append 4 Vector','Append4Vector',[['A','A'],['B','B'],['C','C'],['D','D']],['Output'],'','cyan'),
@@ -128,7 +165,6 @@ const CURATED_TEMPLATES = [
  unary('Color','BlackBody','BlackBody','Temp','', 'cyan'), unary('Color','RGB to HSV','RgbToHsv','Input','', 'cyan'), unary('Color','HSV to RGB','HsvToRgb','Input','', 'cyan'),
  unary('Color','SRGB to Working Color Space','SRGBColorToWorkingColorSpace','Input','', 'cyan'),
 
- // Constants and parameters
  T('Constants','Constant','Constant',[],['Output'],'R=0.500000','orange'),
  T('Constants','Constant 2','Constant2Vector',[],['Output'],'R=0.000000\nG=0.000000','orange'),
  T('Constants','Constant 3','Constant3Vector',[],['Output'],'Constant=(R=0.500000,G=0.500000,B=0.500000,A=0.000000)','orange'),
@@ -143,7 +179,6 @@ const CURATED_TEMPLATES = [
  T('Parameters','Collection Parameter','CollectionParameter',[],['Output'],'ParameterName="Parameter"','orange'),
  T('Parameters','Dynamic Parameter','DynamicParameter',[],['Param1','Param2','Param3','Param4'],'','orange'),
 
- // Textures
  T('Textures','Texture Sample','TextureSample',[['UVs','Coordinates'],['Texture Object','TextureObject'],['Mip Value','MipValue'],['DDX','CoordinatesDX'],['DDY','CoordinatesDY']],['RGB','R','G','B','A'],'SamplerType=SAMPLERTYPE_Color','pink'),
  T('Textures','Texture Sample Parameter 2D','TextureSampleParameter2D',[['UVs','Coordinates'],['Mip Value','MipValue'],['DDX','CoordinatesDX'],['DDY','CoordinatesDY']],['RGB','R','G','B','A'],'ParameterName="Texture"\nSamplerType=SAMPLERTYPE_Color\nExpressionGUID=00000000000000000000000000000000','pink'),
  T('Textures','Texture Sample Parameter Cube','TextureSampleParameterCube',[['UVW','Coordinates'],['Mip Value','MipValue']],['RGB','R','G','B','A'],'ParameterName="Cube"\nSamplerType=SAMPLERTYPE_Color\nExpressionGUID=00000000000000000000000000000000','pink'),
@@ -153,7 +188,6 @@ const CURATED_TEMPLATES = [
  T('Textures','Texture Property','TextureProperty',[['Texture Object','TextureObject']],['Output'],'Property=TMTM_TextureSize','pink'),
  T('Textures','Antialiased Texture Mask','AntialiasedTextureMask',[['UVs','Coordinates']],['Output'],'Threshold=0.500000\nChannel=TMGS_Red','pink'),
 
- // Coordinates / geometry
  T('Coordinates','Texture Coordinate','TextureCoordinate',[],['UV'],'CoordinateIndex=0\nUTiling=1.000000\nVTiling=1.000000','cyan'),
  T('Coordinates','Panner','Panner',[['UVs','Coordinate'],['Time','Time'],['Speed','Speed']],['Output'],'SpeedX=0.000000\nSpeedY=0.000000\nConstCoordinate=0','cyan'),
  T('Coordinates','Rotator','Rotator',[['UVs','Coordinate'],['Time','Time']],['Output'],'CenterX=0.500000\nCenterY=0.500000\nSpeed=0.250000','cyan'),
@@ -180,7 +214,6 @@ const CURATED_TEMPLATES = [
  T('Coordinates','Transform Position','TransformPosition',[['Input','Input']],['Output'],'TransformSourceType=TRANSFORMPOSSOURCE_Local\nTransformType=TRANSFORMPOSSOURCE_World','cyan'),
  T('Coordinates','Rotate About Axis','RotateAboutAxis',[['Normalized Rotation Axis','NormalizedRotationAxis'],['Rotation Angle','RotationAngle'],['Pivot Point','PivotPoint'],['Position','Position']],['Result'],'','cyan'),
 
- // Utility / masks / logic
  T('Utility','Time','Time',[],['Output'],'','pink'), T('Utility','Delta Time','DeltaTime',[],['Output'],'','pink'),
  T('Utility','Two Sided Sign','TwoSidedSign',[],['Output'],'','pink'), T('Utility','Vertex Color','VertexColor',[],['RGB','R','G','B','A'],'','pink'),
  T('Utility','Per Instance Random','PerInstanceRandom',[],['Output'],'','pink'), T('Utility','Per Instance Fade','PerInstanceFadeAmount',[],['Output'],'','pink'),
@@ -193,7 +226,6 @@ const CURATED_TEMPLATES = [
  T('Utility','Reroute','Reroute',[['Input','Input']],['Output'],'','pink'),
  T('Utility','Custom HLSL','Custom',[['Input0','custom:Input0']],['Output'],'Description="Custom"\nOutputType=CMOT_Float3','pink',{custom:true,code:'return Input0;'}),
 
- // Scene / view
  T('Scene','Scene Texture','SceneTexture',[['UV','Coordinates']],['Color','Size','InvSize'],'SceneTextureId=PPI_SceneColor','pink'),
  T('Scene','Scene Color','SceneColor',[['UV','Input']],['Color'],'InputMode=Coordinates','pink'),
  T('Scene','Scene Depth','SceneDepth',[['UV','Input']],['Depth'],'InputMode=Coordinates','pink'),
@@ -205,7 +237,6 @@ const CURATED_TEMPLATES = [
  T('Scene','Decal Color','DecalColor',[],['RGB'],'','pink'),
  T('Scene','Decal Lifetime Opacity','DecalLifetimeOpacity',[],['Output'],'','pink'),
 
- // Particle
  T('Particles','Particle Color','ParticleColor',[],['RGB','R','G','B','A'],'','orange'),
  T('Particles','Particle Position WS','ParticlePositionWS',[],['XYZ'],'','orange'),
  T('Particles','Particle Direction','ParticleDirection',[],['XYZ'],'','orange'),
@@ -217,7 +248,6 @@ const CURATED_TEMPLATES = [
  T('Particles','Particle Sprite Rotation','ParticleSpriteRotation',[],['Output'],'','orange'),
  T('Particles','Particle Macro UV','ParticleMacroUV',[],['UV'],'','orange'),
 
- // Distance fields / advanced rendering
  T('Distance Fields','Distance To Nearest Surface','DistanceToNearestSurface',[['Position','Position']],['Distance'],'','cyan'),
  T('Distance Fields','Distance Field Gradient','DistanceFieldGradient',[['Position','Position']],['Gradient'],'','cyan'),
  T('Distance Fields','Distance Field Approx AO','DistanceFieldApproxAO',[['Position','Position'],['Normal','Normal']],['AO'],'','cyan'),
@@ -229,19 +259,16 @@ const CURATED_TEMPLATES = [
  T('Switches','Lightmass Replace','LightmassReplace',[['Realtime','Realtime'],['Lightmass','Lightmass']],['Output'],'','acid'),
  T('Switches','Shadow Replace','ShadowReplace',[['Default','Default'],['Shadow','Shadow']],['Output'],'','acid'),
 
- // Material attributes
  T('Material Attributes','Make Material Attributes','MakeMaterialAttributes',[['Base Color','BaseColor'],['Metallic','Metallic'],['Specular','Specular'],['Roughness','Roughness'],['Emissive Color','EmissiveColor'],['Opacity','Opacity'],['Opacity Mask','OpacityMask'],['Normal','Normal'],['World Position Offset','WorldPositionOffset'],['Ambient Occlusion','AmbientOcclusion'],['Pixel Depth Offset','PixelDepthOffset']],['Material Attributes'],'','cyan'),
  T('Material Attributes','Break Material Attributes','BreakMaterialAttributes',[['Material Attributes','MaterialAttributes']],['Base Color','Metallic','Specular','Roughness','Emissive Color','Opacity','Opacity Mask','Normal','World Position Offset','Ambient Occlusion','Pixel Depth Offset'],'','cyan'),
  T('Material Attributes','Blend Material Attributes','BlendMaterialAttributes',[['A','A'],['B','B'],['Alpha','Alpha']],['Material Attributes'],'','cyan'),
  T('Material Attributes','Get Material Attributes','GetMaterialAttributes',[['Material Attributes','MaterialAttributes']],['Output'],'','cyan'),
  T('Material Attributes','Set Material Attributes','SetMaterialAttributes',[['Material Attributes','MaterialAttributes']],['Material Attributes'],'','cyan'),
 
- // Runtime virtual texture
  T('Virtual Texture','Runtime Virtual Texture Sample','RuntimeVirtualTextureSample',[['UV','Coordinates'],['World Position','WorldPosition']],['Base Color','Specular','Roughness','Normal','World Height','Mask'],'','pink'),
  T('Virtual Texture','Runtime Virtual Texture Output','RuntimeVirtualTextureOutput',[['Base Color','BaseColor'],['Specular','Specular'],['Roughness','Roughness'],['Normal','Normal'],['World Height','WorldHeight'],['Opacity','Opacity'],['Mask','Mask']],[], '', 'pink'),
  T('Virtual Texture','Runtime Virtual Texture Replace','RuntimeVirtualTextureReplace',[['Default','Default'],['Virtual Texture','VirtualTextureOutput']],['Output'],'','pink'),
 
- // Material functions / misc nodes that commonly appear in graphs
  T('Functions','Function Input','FunctionInput',[],['Output'],'InputName="Input"\nInputType=FunctionInput_Scalar','orange'),
  T('Functions','Function Output','FunctionOutput',[['Input','A']],[], 'OutputName="Output"','orange'),
  T('Functions','Material Function Call','MaterialFunctionCall',[],['Output'],'','orange',{raw:true}),
@@ -249,9 +276,6 @@ const CURATED_TEMPLATES = [
  T('Advanced','Raw Expression','Multiply',[['A','A'],['B','B']],['Output'],'','pink',{raw:true})
 ];
 
-// UE 5.4 MaterialExpression classes from Epic's Python API index. Curated entries above
-// carry useful pin/property metadata; the remainder are exposed as editable raw expressions
-// so the palette is not artificially limited to a small hard-coded subset.
 const UE54_EXPRESSION_CLASSES = `
 AbsorptionMediumMaterialOutput AtmosphericFogColor AtmosphericLightColor AtmosphericLightVector BentNormalCustomOutput BlendMaterialAttributes Bounds BreakMaterialAttributes Burn ClearCoatNormalCustomOutput CloudSampleAttribute Comment Composite ConstantDouble CurveAtlasRowParameter CustomOutput DataDrivenShaderPlatformInfoSwitch DBufferTexture DecalDerivative DecalMipmapLevel Difference DisjointOver DistanceFieldsRenderingSwitch Dodge DoubleVectorParameter ExecBegin ExecEnd FontSample FontSampleParameter ForLoop Fractal3D GenericConstant GetLocal GIReplace GoogleARCorePassthroughCamera HairAttributes HairColor HeightfieldMinMaxTexture IfThenElse In IsOrthographic LandscapeGrassOutput LandscapeLayerBlend LandscapeLayerCoords LandscapeLayerSample LandscapeLayerSwitch LandscapeLayerWeight LandscapePhysicalMaterialOutput LandscapeVisibilityMask Less LightVector Luminance MapARPassthroughCameraUV Mask MaterialAttributeLayers MaterialLayerOutput MaterialProxyReplace Matte Minus NamedRerouteDeclaration NamedRerouteUsage NeuralNetworkInput NeuralNetworkOutput ObjectLocalBounds Out Over Overlay ParticleMotionBlurFade ParticleSubUV PathTracingBufferTexture PathTracingQualitySwitch PathTracingRayTypeSwitch PerInstanceCustomData3Vector PhysicalMaterialOutput Place2D Plus PrecomputedAOMask Premult Ramp4 RampLeftRight RampTopBottom ReflectionCapturePassSwitch Remap RequiredSamplersSwitch Rotate2D RuntimeVirtualTextureSampleParameter SamplePhysicsIntegerField SamplePhysicsScalarField SamplePhysicsVectorField SceneDepthWithoutWater SceneTexelSize Screen SetLocal ShaderStageSwitch ShadingModel SingleLayerWaterMaterialOutput SkyAtmosphereAerialPerspective SkyAtmosphereDistantLightScatteredLuminance SkyAtmosphereLightDirection SkyAtmosphereLightDiskLuminance SkyAtmosphereLightIlluminance SkyAtmosphereLightIlluminanceOnGround SkyAtmosphereViewLuminance SkyLightEnvMapSample Sobol SparseVolumeTextureObject SparseVolumeTextureObjectParameter SparseVolumeTextureSample SparseVolumeTextureSampleParameter SpeedTree SphericalParticleOpacity SplitLeftRight SplitTopBottom SpriteTextureSampler Tangent TangentOutput TemporalSobol TerrainLayerCoords TerrainLayerSwitch TerrainLayerWeight TextureSampleParameter2DArray TextureSampleParameterBlur TextureSampleParameterCubeArray TextureSampleParameterSubUV ThinTranslucentMaterialOutput TruncateLWC Unpremult ViewProperty VirtualTextureFeatureSwitch VolumetricAdvancedMaterialInput VolumetricAdvancedMaterialOutput VolumetricCloudEmptySpaceSkippingInput VolumetricCloudEmptySpaceSkippingOutput WhileLoop
 `.trim().split(/\s+/);
@@ -264,9 +288,6 @@ const EXTENDED_TEMPLATES=UE54_EXPRESSION_CLASSES
  .map(cls=>({cat:'UE 5.4 / Extended',name:prettyExpressionName(cls.replace('MaterialExpression','')),class:cls,accent:'pink',inputs:[],outputs:['Output'],props:'',raw:true,extended:true}));
 const TEMPLATES=[...CURATED_TEMPLATES,...EXTENDED_TEMPLATES];
 
-// Engine Material Functions are assets rather than expression classes. Their function-call
-// pins use stable GUIDs owned by each MaterialFunction asset, so an exact UE install catalog
-// is imported once and kept in localStorage. See UE54_EXPORT_MTRL_FUNCTIONS.py.
 const FUNCTION_HINTS=[
  ['Blend','Blend_Overlay'],['Blend','Blend_ColorBurn'],['Blend','Blend_ColorDodge'],['Blend','Blend_Darken'],['Blend','Blend_Difference'],['Blend','Blend_HardLight'],['Blend','Blend_Lighten'],['Blend','Blend_LinearBurn'],['Blend','Blend_LinearDodge'],['Blend','Blend_LinearLight'],['Blend','Blend_Multiply'],['Blend','Blend_PinLight'],['Blend','Blend_Screen'],['Blend','Blend_SoftLight'],
  ['Gradient','RadialGradientExponential'],['Gradient','DiamondGradient'],['Gradient','LinearGradient'],['Gradient','SmoothCurve'],['Gradient','ValueStep'],
@@ -604,9 +625,6 @@ function importUE(text){
 }
 
 
-// MTRL//SCRIPT v1 -------------------------------------------------------------
-// Compact, deterministic chat -> graph protocol. A recipe may be pasted directly
-// from markdown; fences/prose outside MTRL_SCRIPT..END_SCRIPT are ignored.
 const MTRL_PROTOCOL = `MTRL//SCRIPT 1 — compact contract
 Return only one complete MTRL_SCRIPT block. Use exact names/pins from AI Context.
 
@@ -716,7 +734,6 @@ function loadLocal(){try{
 function loadSample(){graph={nodes:[],edges:[]};idSeq=1;const uv=makeNode(TEMPLATES.find(t=>t.name==='Texture Coordinate'),100,200);const time=makeNode(TEMPLATES.find(t=>t.name==='Time'),100,390);const speed=makeNode(TEMPLATES.find(t=>t.name==='Scalar Parameter'),350,390);speed.name='Speed';speed.props='DefaultValue=0.250000\nParameterName="Speed"\nExpressionGUID='+guid();const mul=makeNode(TEMPLATES.find(t=>t.name==='Multiply'),610,360);const custom=makeNode(TEMPLATES.find(t=>t.name==='Custom HLSL'),880,210);custom.name='UV Warp';custom.inputs=[{id:uid('p'),name:'UV',prop:'custom:UV',pinGuid:guid()},{id:uid('p'),name:'T',prop:'custom:T',pinGuid:guid()}];custom.code='float2 wobble = float2(sin((UV.y + T) * 6.28318), cos((UV.x + T) * 6.28318));\nreturn UV + wobble * 0.02;';custom.props='Description="UV Warp"\nOutputType=CMOT_Float2';graph.edges.push({id:uid('e'),fromNode:time.id,fromPin:time.outputs[0].id,toNode:mul.id,toPin:mul.inputs[0].id},{id:uid('e'),fromNode:speed.id,fromPin:speed.outputs[0].id,toNode:mul.id,toPin:mul.inputs[1].id},{id:uid('e'),fromNode:uv.id,fromPin:uv.outputs[0].id,toNode:custom.id,toPin:custom.inputs[0].id},{id:uid('e'),fromNode:mul.id,fromPin:mul.outputs[0].id,toNode:custom.id,toPin:custom.inputs[1].id});selected=custom.id;selection=new Set([custom.id]);render();frameAll();saveLocal();}
 
 
-// ---- Live material preview -------------------------------------------------
 const PREVIEW_CHANNELS=[['BC','Base Color'],['M','Metallic'],['S','Specular'],['R','Roughness'],['E','Emissive'],['O','Opacity'],['MK','Opacity Mask'],['N','Normal'],['WPO','World Position Offset'],['AO','Ambient Occlusion']];
 let preview={gl:null,program:null,mesh:'sphere',paused:false,start:performance.now(),pauseAt:0,dirty:true,error:'',graphError:'',buffers:{},indexCount:0,customFns:[],root:null,lastShader:null,lastFallback:null,lastCompileStage:'',lastWarnings:[]};
 function markPreviewDirty(){preview.dirty=true}
@@ -918,9 +935,20 @@ function showModal(mode,text=''){
  }[mode]||['TEXT','Close',''];
  const m=$('#textModal');m.classList.add('show');$('#modalText').value=text;$('#modalTitle').textContent=cfg[0];$('#modalAction').textContent=cfg[1];$('#modalHint').textContent=cfg[2];m.dataset.mode=mode;setTimeout(()=>$('#modalText').focus(),20)
 }
+const HELP_SEEN_KEY='mtrlbridge.helpSeen';
+function openHelp(){
+ $('#helpModal').classList.add('show');
+ try{localStorage.setItem(HELP_SEEN_KEY,'1')}catch(e){}
+}
+function closeHelp(){$('#helpModal').classList.remove('show')}
+$('#helpBtn').onclick=openHelp;
+$('#closeHelp').onclick=$('#helpStart').onclick=closeHelp;
+$('#helpModal').onclick=e=>{if(e.target===$('#helpModal'))closeHelp()};
+$('#copyStarterPrompt').onclick=async()=>{await copyText($('#starterPrompt').textContent);toast('AI starter prompt copied')};
+$$('#toolsMenu .tools-item').forEach(b=>b.addEventListener('click',()=>{$('#toolsMenu').open=false}));
 $('#closeModal').onclick=()=>$('#textModal').classList.remove('show');$('#textModal').onclick=e=>{if(e.target===$('#textModal'))$('#textModal').classList.remove('show')};
 $('#modalAction').onclick=async()=>{const mode=$('#textModal').dataset.mode;try{if(mode==='import'){importUE($('#modalText').value);$('#textModal').classList.remove('show')}else if(mode==='recipe'){importRecipe($('#modalText').value);$('#textModal').classList.remove('show')}else await copyText($('#modalText').value)}catch(e){toast(e.message);status(e.message,'warn')}};
-async function copyText(t){try{await navigator.clipboard.writeText(t);toast('Copied to clipboard');status('Clipboard ready','good')}catch(e){const ta=$('#modalText');if(ta){ta.select();document.execCommand('copy');toast('Copied')}else showModal('export',t)}}
+async function copyText(t){try{await navigator.clipboard.writeText(t);toast('Copied to clipboard');status('Clipboard ready','good')}catch(e){const ta=document.createElement('textarea');ta.value=t;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;left:-9999px;top:-9999px';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Copied to clipboard');status('Clipboard ready','good')}}
 $('#copyBtn').onclick=async()=>{if(!graph.nodes.length)return toast('Add at least one node');const t=exportUE();await copyText(t);status(`Copied all ${graph.nodes.length} nodes — paste in Material Editor`,'good')};
 $('#copySelectedBtn').onclick=async()=>{if(!selection.size)return toast('Select one or more nodes first');const t=exportUE(selection);await copyText(t);status(`Copied ${selection.size} selected node${selection.size===1?'':'s'} — internal links only`,'good')};
 $('#previewBtn').onclick=()=>showModal('export',exportUE());
@@ -940,6 +968,7 @@ $('#frameBtn').onclick=frameAll;$('#sampleBtn').onclick=loadSample;$('#search').
 $('#addGraphTab').onclick=addGraphTab;
 $('#previewSphere').onclick=()=>setPreviewMesh('sphere');$('#previewPlane').onclick=()=>setPreviewMesh('plane');$('#previewPause').onclick=()=>{preview.paused=!preview.paused;if(preview.paused)preview.pauseAt=(performance.now()-preview.start)/1000;else preview.start=performance.now()-preview.pauseAt*1000;$('#previewPause').textContent=preview.paused?'Play':'Pause';$('#previewPause').classList.toggle('active',preview.paused)};$('#previewCopyError').onclick=copyPreviewDebug;
 loadFunctionCatalog();const _pf=$('#packagedFunctionsToggle');if(_pf)_pf.checked=USE_PACKAGED_FUNCTIONS;renderPalette();if(!loadLocal())loadSample();else render();updateCounts();renderGraphTabs();renderPreviewChannels();initPreviewGL();
+try{if(!localStorage.getItem(HELP_SEEN_KEY))requestAnimationFrame(()=>setTimeout(openHelp,180))}catch(e){requestAnimationFrame(()=>setTimeout(openHelp,180))}
 </script>
 </body>
 </html>
